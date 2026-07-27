@@ -95,6 +95,47 @@ const AddCropPage = () => {
     returnPolicy: 'No returns on fresh produce',
   });
 
+  // --- AI Content Generator (Agentic AI Feature #1) ---
+  const [descLength, setDescLength] = useState<'short' | 'medium' | 'long'>(
+    'medium',
+  );
+
+  const aiDescriptionMutation = useMutation({
+    mutationFn: async () => {
+      return (
+        await axios.post('http://localhost:5000/api/ai/generate-description', {
+          title: formData.title,
+          category: formData.category,
+          productType,
+          price: formData.price,
+          unit: formData.unit,
+          isOrganic: formData.isOrganic,
+          grade: formData.grade,
+          brand: formData.brand,
+          condition: formData.condition,
+          highlights: formData.highlights,
+          length: descLength,
+        })
+      ).data;
+    },
+    onSuccess: data => {
+      if (data?.success) {
+        setFormData(prev => ({ ...prev, description: data.description }));
+      } else {
+        alert(`❌ AI GENERATION FAILED: ${data?.error || 'Unknown error'}`);
+      }
+    },
+    onError: (err: any) =>
+      alert(`❌ AI GENERATION FAILED: ${err.response?.data?.error || err.message}`),
+  });
+
+  const handleGenerateDescription = () => {
+    if (!formData.title || !formData.category) {
+      return alert('⚠️ ADD A TITLE AND CATEGORY FIRST SO THE AI KNOWS WHAT TO WRITE');
+    }
+    aiDescriptionMutation.mutate();
+  };
+
   const noSpinnerClass =
     '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
 
@@ -509,9 +550,47 @@ const AddCropPage = () => {
                 )}
               </AnimatePresence>
 
+              {/* AI Content Generator Toolbar */}
+              <div className="flex flex-wrap items-center gap-3 bg-green-50/60 dark:bg-green-900/10 p-4 rounded-[2rem] border border-green-100 dark:border-green-900/30">
+                <div className="flex items-center gap-1 bg-white dark:bg-gray-800 rounded-full p-1 border dark:border-gray-700">
+                  {(['short', 'medium', 'long'] as const).map(l => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setDescLength(l)}
+                      className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all ${
+                        descLength === l
+                          ? 'bg-[#16503b] text-white'
+                          : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGenerateDescription}
+                  disabled={aiDescriptionMutation.isPending}
+                  className="ml-auto flex items-center gap-2 bg-[#16503b] hover:bg-[#123f2e] text-white px-5 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest cursor-pointer disabled:opacity-60 transition-all"
+                >
+                  {aiDescriptionMutation.isPending ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" /> Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={14} />
+                      {formData.description ? 'Regenerate with AI' : 'Generate with AI'}
+                    </>
+                  )}
+                </button>
+              </div>
+
               <textarea
                 rows={4}
-                placeholder="WRITE A COMPELLING PRODUCT OVERVIEW FOR YOUR BUYERS..."
+                placeholder="WRITE A COMPELLING PRODUCT OVERVIEW FOR YOUR BUYERS, OR GENERATE ONE WITH AI ABOVE..."
                 value={formData.description}
                 onChange={e =>
                   setFormData({ ...formData, description: e.target.value })

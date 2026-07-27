@@ -80,6 +80,7 @@ interface Comment {
   userName: string;
   userImage?: string | null;
   comment: string;
+  rating?: number;
   createdAt: string;
 }
 
@@ -95,6 +96,8 @@ const ProductDetailsPage = () => {
     'overview' | 'specifications' | 'reviews' | 'seller' | 'related'
   >('overview');
   const [commentText, setCommentText] = useState('');
+  const [commentRating, setCommentRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
 
   // --- Product ---
   const {
@@ -178,12 +181,15 @@ const ProductDetailsPage = () => {
         userName: currentUser?.name,
         userImage: currentUser?.image,
         comment: commentText,
+        rating: commentRating,
       });
       return res.data;
     },
     onSuccess: () => {
       setCommentText('');
+      setCommentRating(5);
       queryClient.invalidateQueries({ queryKey: ['comments', productId] });
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
     },
   });
 
@@ -295,7 +301,7 @@ const ProductDetailsPage = () => {
   return (
     <div className="min-h-screen bg-[#f8f7f3] dark:bg-[#020617] transition-colors duration-300">
       {/* Breadcrumb */}
-      <div className="container mx-auto px-4 md:px-10 pt-6">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-10 pt-6">
         <div className="flex items-center gap-2 text-xs font-bold text-gray-400 dark:text-gray-500">
           <Link href="/" className="hover:text-[#16503b]">
             Home
@@ -319,7 +325,7 @@ const ProductDetailsPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 md:px-10 py-8">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-10 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left Column - Images */}
           <div className="space-y-4">
@@ -742,6 +748,33 @@ const ProductDetailsPage = () => {
                 {currentUser?.name?.charAt(0) || '?'}
               </div>
               <div className="flex-1">
+                <div className="flex items-center gap-1 mb-2">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      type="button"
+                      disabled={!currentUser}
+                      onClick={() => setCommentRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className="disabled:cursor-not-allowed"
+                    >
+                      <Star
+                        size={18}
+                        className={
+                          star <= (hoverRating || commentRating)
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
+                        }
+                      />
+                    </button>
+                  ))}
+                  {currentUser && (
+                    <span className="text-xs text-gray-400 ml-1">
+                      {commentRating}/5
+                    </span>
+                  )}
+                </div>
                 <textarea
                   value={commentText}
                   onChange={e => setCommentText(e.target.value)}
@@ -804,9 +837,16 @@ const ProductDetailsPage = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="font-bold text-sm text-gray-900 dark:text-white">
-                        {c.userName}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-gray-900 dark:text-white">
+                          {c.userName}
+                        </span>
+                        {!!c.rating && (
+                          <div className="flex items-center">
+                            {renderStars(c.rating)}
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center gap-3">
                         <span className="text-xs text-gray-400">
                           {new Date(c.createdAt).toLocaleDateString()}

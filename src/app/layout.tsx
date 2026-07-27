@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Footer from "@/components/shared/Footer";
+import AiChatAssistant from "@/components/shared/AiChatAssistant";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-grow">{children}</main>
           <Footer/>
+          <AiChatAssistant />
         </ThemeProvider>
       </body>
     </html>
