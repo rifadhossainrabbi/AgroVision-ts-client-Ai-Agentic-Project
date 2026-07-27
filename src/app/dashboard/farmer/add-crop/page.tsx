@@ -15,7 +15,6 @@ import {
   AlertCircle,
   MapPin,
   Truck,
-  Settings2,
 } from 'lucide-react';
 import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
@@ -26,32 +25,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 // --- কৃষি সম্পর্কিত কনস্ট্যান্টস ---
 const CATEGORIES = {
   Crop: [
-    'RICE',
-    'WHEAT',
-    'CORN',
-    'VEGETABLES',
-    'FRUITS',
-    'LENTILS',
-    'SPICES',
-    'ORGANIC HERBS',
-    'OTHERS',
+    'Rice',
+    'Wheat',
+    'Corn',
+    'Vegetables',
+    'Fruits',
+    'Lentils',
+    'Spices',
+    'Organic Herbs',
+    'Others',
   ],
   Machine: [
-    'TRACTOR',
-    'HARVESTER',
-    'POWER TILLER',
-    'IRRIGATION PUMP',
-    'SEEDING MACHINE',
-    'SPRAYING DRONE',
-    'SENSORS',
-    'OTHERS',
+    'Tractor',
+    'Harvester',
+    'Power Tiller',
+    'Irrigation Pump',
+    'Seeding Machine',
+    'Spraying Drone',
+    'Sensors',
+    'Others',
   ],
 };
 
-const UNITS = ['KG', 'TON', 'PIECE', 'MOUND', 'BUSHEL', 'UNIT', 'SET'];
-const CONDITIONS = ['NEW', 'LIKE NEW', 'GOOD', 'FAIR', 'NEEDS REPAIR'];
-const GRADES = ['GRADE A (PREMIUM)', 'GRADE B (STANDARD)', 'GRADE C (AVERAGE)'];
-const FUEL_TYPES = ['DIESEL', 'PETROL', 'OCTANE', 'ELECTRIC', 'MANUAL'];
+const UNITS = ['kg', 'ton', 'piece', 'mound', 'bushel', 'unit', 'set'];
+const CONDITIONS = ['New', 'Like New', 'Good', 'Fair', 'Needs Repair'];
+const GRADES = ['Grade A (Premium)', 'Grade B (Standard)', 'Grade C (Average)'];
+const FUEL_TYPES = ['Diesel', 'Petrol', 'Octane', 'Electric', 'Manual'];
 
 const AddCropPage = () => {
   const router = useRouter();
@@ -61,38 +60,44 @@ const AddCropPage = () => {
   const [uploading, setUploading] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
-  // সম্পূর্ণ ডাইনামিক ফর্ম স্টেট
+  // ডাটাবেস অনুযায়ী 'name' এর বদলে 'title' ব্যবহার করা হয়েছে
   const [formData, setFormData] = useState({
-    name: '',
+    title: '', // Changed from name to title
     category: '',
     description: '',
     price: 0,
-    quantity: 0,
-    unit: 'KG',
+    originalPrice: 0,
+    unit: 'kg',
     location: '',
     // Crop Specific
     harvestDate: '',
     freshness: 'Fresh',
     isOrganic: false,
-    grade: 'GRADE A (PREMIUM)',
+    grade: GRADES[0],
     // Machine Specific
     brand: '',
     model: '',
     mfgYear: '',
-    condition: 'GOOD',
+    condition: CONDITIONS[2],
     hoursUsed: 0,
-    fuelType: 'DIESEL',
+    fuelType: FUEL_TYPES[0],
     warranty: '',
     // Logistics
     deliveryAvailable: true,
     pickupAvailable: true,
+    // Detailed page metadata
+    highlights: 'Freshly Harvested, Organic, Premium Quality',
+    certification: 'ISO 9001 (Recommended)',
+    roiEstimation: 'Quick ROI',
+    maintenance: 'Low Maintenance',
+    bestSeason: 'Year Round',
+    shippingPolicy: 'Standard Shipping Available',
+    returnPolicy: 'No returns on fresh produce',
   });
 
-  // ইনপুট ফিল্ড থেকে অ্যারো সরানোর জন্য CSS ক্লাস
-  const inputClass =
-    'w-full p-5 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold focus:border-[#16503b] outline-none shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all uppercase tracking-tighter text-sm';
+  const noSpinnerClass =
+    '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
 
-  // ImgBB আপলোড লজিক
   const uploadToImgBB = async (file: File) => {
     const body = new FormData();
     body.append('image', file);
@@ -103,7 +108,6 @@ const AddCropPage = () => {
     return res.data.data.url;
   };
 
-  // TanStack Query Mutation
   const publishMutation = useMutation({
     mutationFn: async (payload: any) => {
       return (
@@ -120,8 +124,8 @@ const AddCropPage = () => {
 
   const handlePublish = async () => {
     if (images.length === 0) return alert('⚠️ UPLOAD AT LEAST ONE IMAGE');
-    if (!formData.name || !formData.category)
-      return alert('⚠️ NAME AND CATEGORY ARE REQUIRED');
+    if (!formData.title || !formData.category)
+      return alert('⚠️ TITLE AND CATEGORY ARE REQUIRED');
 
     setUploading(true);
     try {
@@ -129,9 +133,13 @@ const AddCropPage = () => {
       const payload = {
         ...formData,
         userId: session?.user?.id || 'anonymous',
+        sellerName: session?.user?.name || 'AgroVision Direct',
+        sellerImage: session?.user?.image || '',
         mainImage: urls[0],
         extraImages: urls.slice(1),
         productType,
+        rating: 5,
+        status: 'active',
         createdAt: new Date(),
       };
       publishMutation.mutate(payload);
@@ -142,45 +150,44 @@ const AddCropPage = () => {
     }
   };
 
-  // কোয়ালিটি মিটার ক্যালকুলেশন
   const listingQuality = useMemo(() => {
     let score = 0;
-    if (formData.name.length > 5) score += 25;
+    if (formData.title.length > 8) score += 25;
     if (formData.category) score += 25;
     if (images.length >= 1) score += 25;
-    if (formData.description.length > 20) score += 25;
+    if (formData.description.length > 30) score += 25;
     return score;
   }, [formData, images]);
 
   return (
     <div className="max-w-[1440px] mx-auto p-4 md:p-8 bg-white dark:bg-gray-950 transition-colors duration-300">
-      {/* --- STICKY HEADER --- */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-10 sticky top-0 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md z-40 py-4 border-b dark:border-gray-800">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter uppercase italic">
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
             Create Listing
           </h1>
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-            Global Farming Marketplace
+            Smart Farming Marketplace
           </p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setIsPreview(!isPreview)}
-            className="flex items-center gap-2 px-6 py-2.5 border border-gray-200 dark:border-gray-800 rounded-2xl dark:text-white cursor-pointer font-black text-[10px] uppercase tracking-widest shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="flex items-center gap-2 px-6 py-2.5 border border-gray-200 dark:border-gray-800 rounded-2xl dark:text-white cursor-pointer font-black text-xs uppercase tracking-widest shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            {isPreview ? <X size={14} /> : <Eye size={14} />}{' '}
+            {isPreview ? <X size={16} /> : <Eye size={16} />}{' '}
             {isPreview ? 'EDIT' : 'PREVIEW'}
           </button>
           <button
             onClick={handlePublish}
             disabled={uploading || publishMutation.isPending}
-            className="flex items-center gap-2 px-8 py-2.5 bg-[#16503b] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-green-900/20 disabled:opacity-50 cursor-pointer active:scale-95 transition-all"
+            className="flex items-center gap-2 px-8 py-2.5 bg-[#16503b] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-green-900/20 disabled:opacity-50 cursor-pointer active:scale-95 transition-all"
           >
             {uploading ? (
-              <Loader2 className="animate-spin" size={14} />
+              <Loader2 className="animate-spin" size={16} />
             ) : (
-              <Send size={14} />
+              <Send size={16} />
             )}{' '}
             PUBLISH NOW
           </button>
@@ -188,14 +195,13 @@ const AddCropPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* --- LEFT FORM COLUMN --- */}
         <div
           className={`lg:col-span-2 space-y-10 ${isPreview ? 'hidden' : 'block'}`}
         >
-          {/* 1. MEDIA ASSETS (ON TOP) */}
+          {/* Section 1: Media Assets (Always on Top) */}
           <div className="bg-gray-50/50 dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 space-y-6 shadow-sm">
             <h3 className="text-lg font-black text-[#16503b] dark:text-green-500 uppercase flex items-center gap-3 italic mb-8">
-              <Camera size={22} /> Media Assets *
+              <Camera size={22} /> Photos *
             </h3>
             <div className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2.5rem] p-12 text-center bg-white dark:bg-gray-950/50 relative hover:border-[#16503b] transition-all group">
               <input
@@ -254,7 +260,7 @@ const AddCropPage = () => {
             </div>
           </div>
 
-          {/* 2. CORE INFORMATION */}
+          {/* Section 2: Core Info */}
           <div className="bg-gray-50/50 dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 space-y-8 shadow-sm">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h3 className="text-lg font-black text-[#16503b] dark:text-green-500 uppercase flex items-center gap-3">
@@ -281,14 +287,14 @@ const AddCropPage = () => {
                 type="text"
                 placeholder={
                   productType === 'Crop'
-                    ? 'NAME OF YOUR CROP (E.G. BASMATI RICE)'
-                    : 'NAME OF YOUR MACHINE (E.G. MAHINDRA TRACTOR)'
+                    ? 'CROP TITLE (E.G. ORGANIC RED TOMATOES)'
+                    : 'MACHINE TITLE (E.G. SMART IRRIGATION SYSTEM)'
                 }
-                value={formData.name}
+                value={formData.title}
                 onChange={e =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setFormData({ ...formData, title: e.target.value })
                 }
-                className={inputClass}
+                className="w-full p-5 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold focus:border-[#16503b] outline-none shadow-inner uppercase tracking-tighter text-sm"
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -297,7 +303,7 @@ const AddCropPage = () => {
                   onChange={e =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className={inputClass + ' cursor-pointer'}
+                  className="p-5 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold outline-none cursor-pointer text-xs uppercase"
                 >
                   <option value="">CHOOSE CATEGORY *</option>
                   {CATEGORIES[productType].map(cat => (
@@ -309,7 +315,7 @@ const AddCropPage = () => {
                 <div className="relative">
                   <input
                     type="number"
-                    placeholder="EXPECTED PRICE ($) *"
+                    placeholder="PRICE ($) *"
                     value={formData.price || ''}
                     onChange={e =>
                       setFormData({
@@ -317,7 +323,7 @@ const AddCropPage = () => {
                         price: Number(e.target.value),
                       })
                     }
-                    className={inputClass}
+                    className={`w-full p-5 rounded-[1.5rem] border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-black text-lg focus:border-[#16503b] outline-none shadow-inner ${noSpinnerClass}`}
                   />
                   <span className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 font-black">
                     $
@@ -325,7 +331,7 @@ const AddCropPage = () => {
                 </div>
               </div>
 
-              {/* DYNAMIC FIELD GENERATION BASED ON TYPE */}
+              {/* Dynamic Fields */}
               <AnimatePresence mode="wait">
                 {productType === 'Crop' ? (
                   <motion.div
@@ -338,7 +344,7 @@ const AddCropPage = () => {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                       <input
                         type="number"
-                        placeholder="QUANTITY (0.00)"
+                        placeholder="QUANTITY"
                         value={formData.quantity || ''}
                         onChange={e =>
                           setFormData({
@@ -346,18 +352,18 @@ const AddCropPage = () => {
                             quantity: Number(e.target.value),
                           })
                         }
-                        className={inputClass}
+                        className="w-full p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold text-sm shadow-inner"
                       />
                       <select
                         value={formData.unit}
                         onChange={e =>
                           setFormData({ ...formData, unit: e.target.value })
                         }
-                        className={inputClass + ' cursor-pointer'}
+                        className="w-full p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold outline-none cursor-pointer uppercase text-xs"
                       >
                         {UNITS.map(u => (
                           <option key={u} value={u}>
-                            UNIT: {u}
+                            {u}
                           </option>
                         ))}
                       </select>
@@ -366,10 +372,7 @@ const AddCropPage = () => {
                         onChange={e =>
                           setFormData({ ...formData, grade: e.target.value })
                         }
-                        className={
-                          inputClass +
-                          ' cursor-pointer col-span-2 md:col-span-1'
-                        }
+                        className="w-full p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold outline-none cursor-pointer uppercase text-xs"
                       >
                         {GRADES.map(g => (
                           <option key={g} value={g}>
@@ -379,8 +382,8 @@ const AddCropPage = () => {
                       </select>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-4">
                           HARVEST DATE *
                         </label>
                         <input
@@ -392,7 +395,7 @@ const AddCropPage = () => {
                               harvestDate: e.target.value,
                             })
                           }
-                          className={inputClass}
+                          className="w-full p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold text-xs"
                         />
                       </div>
                       <label className="flex items-center gap-4 p-5 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 cursor-pointer self-end shadow-sm">
@@ -424,21 +427,21 @@ const AddCropPage = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <input
                         type="text"
-                        placeholder="BRAND NAME"
+                        placeholder="BRAND"
                         value={formData.brand}
                         onChange={e =>
                           setFormData({ ...formData, brand: e.target.value })
                         }
-                        className={inputClass}
+                        className="p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white text-[10px] font-black uppercase"
                       />
                       <input
                         type="text"
-                        placeholder="MODEL NO"
+                        placeholder="MODEL"
                         value={formData.model}
                         onChange={e =>
                           setFormData({ ...formData, model: e.target.value })
                         }
-                        className={inputClass}
+                        className="p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white text-[10px] font-black uppercase"
                       />
                       <input
                         type="text"
@@ -447,7 +450,7 @@ const AddCropPage = () => {
                         onChange={e =>
                           setFormData({ ...formData, mfgYear: e.target.value })
                         }
-                        className={inputClass}
+                        className="p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white text-[10px] font-black uppercase"
                       />
                       <input
                         type="number"
@@ -459,7 +462,7 @@ const AddCropPage = () => {
                             hoursUsed: Number(e.target.value),
                           })
                         }
-                        className={inputClass}
+                        className={`p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white text-[10px] font-black ${noSpinnerClass}`}
                       />
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
@@ -471,7 +474,7 @@ const AddCropPage = () => {
                             condition: e.target.value,
                           })
                         }
-                        className={inputClass + ' cursor-pointer'}
+                        className="p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-black uppercase text-[9px] cursor-pointer"
                       >
                         {CONDITIONS.map(c => (
                           <option key={c} value={c}>
@@ -484,7 +487,7 @@ const AddCropPage = () => {
                         onChange={e =>
                           setFormData({ ...formData, fuelType: e.target.value })
                         }
-                        className={inputClass + ' cursor-pointer'}
+                        className="p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-black uppercase text-[9px] cursor-pointer"
                       >
                         {FUEL_TYPES.map(f => (
                           <option key={f} value={f}>
@@ -494,12 +497,12 @@ const AddCropPage = () => {
                       </select>
                       <input
                         type="text"
-                        placeholder="WARRANTY PERIOD (OPTIONAL)"
+                        placeholder="WARRANTY PERIOD"
                         value={formData.warranty}
                         onChange={e =>
                           setFormData({ ...formData, warranty: e.target.value })
                         }
-                        className={inputClass}
+                        className="p-4 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white text-[10px] font-black uppercase"
                       />
                     </div>
                   </motion.div>
@@ -508,7 +511,7 @@ const AddCropPage = () => {
 
               <textarea
                 rows={4}
-                placeholder="WRITE A COMPELLING PRODUCT OVERVIEW FOR YOUR BUYERS... (ORIGIN, QUALITY, STORAGE, ETC.)"
+                placeholder="WRITE A COMPELLING PRODUCT OVERVIEW FOR YOUR BUYERS..."
                 value={formData.description}
                 onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
@@ -518,22 +521,22 @@ const AddCropPage = () => {
             </div>
           </div>
 
-          {/* 3. LOGISTICS & LOCATION */}
+          {/* Section 3: Logistics */}
           <div className="bg-gray-50/50 dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 space-y-8 shadow-sm">
             <h3 className="text-lg font-black text-[#16503b] dark:text-green-500 uppercase tracking-widest flex items-center gap-3 italic">
-              <MapPin size={22} /> Shipping & Pickup
+              <MapPin size={22} /> Location & Delivery
             </h3>
             <input
               type="text"
-              placeholder="FARM OR SHOP ADDRESS (CITY, STATE, COUNTRY) *"
+              placeholder="FARM OR SHOP ADDRESS (CITY, COUNTRY) *"
               value={formData.location}
               onChange={e =>
                 setFormData({ ...formData, location: e.target.value })
               }
-              className={inputClass}
+              className="w-full p-5 rounded-2xl border dark:border-gray-800 bg-white dark:bg-gray-800 dark:text-white font-bold uppercase text-xs"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <label className="flex items-center gap-4 p-5 rounded-[1.5rem] border dark:border-gray-800 bg-white dark:bg-gray-800 cursor-pointer hover:bg-green-50/50 transition-colors">
+              <label className="flex items-center gap-4 p-5 rounded-[1.5rem] border dark:border-gray-800 bg-white dark:bg-gray-800 cursor-pointer hover:bg-green-50/50 transition-colors shadow-sm">
                 <input
                   type="checkbox"
                   checked={formData.deliveryAvailable}
@@ -549,12 +552,12 @@ const AddCropPage = () => {
                   <span className="text-[10px] font-black uppercase tracking-widest">
                     Doorstep Delivery
                   </span>
-                  <span className="text-[9px] text-gray-400 font-bold">
-                    I CAN SHIP TO CUSTOMER
+                  <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tight">
+                    I will ship to the customer
                   </span>
                 </div>
               </label>
-              <label className="flex items-center gap-4 p-5 rounded-[1.5rem] border dark:border-gray-800 bg-white dark:bg-gray-800 cursor-pointer hover:bg-green-50/50 transition-colors">
+              <label className="flex items-center gap-4 p-5 rounded-[1.5rem] border dark:border-gray-800 bg-white dark:bg-gray-800 cursor-pointer hover:bg-green-50/50 transition-colors shadow-sm">
                 <input
                   type="checkbox"
                   checked={formData.pickupAvailable}
@@ -570,8 +573,8 @@ const AddCropPage = () => {
                   <span className="text-[10px] font-black uppercase tracking-widest">
                     On-Site Pickup
                   </span>
-                  <span className="text-[9px] text-gray-400 font-bold">
-                    PICKUP FROM MY FARM/SHOP
+                  <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tight">
+                    Customer picks up from farm
                   </span>
                 </div>
               </label>
@@ -579,16 +582,16 @@ const AddCropPage = () => {
           </div>
         </div>
 
-        {/* --- DYNAMIC MOCKUP SIDEBAR --- */}
+        {/* --- DYNAMIC SIDEBAR PREVIEW --- */}
         <div
           className={`${isPreview ? 'lg:col-span-3' : 'lg:col-span-1'} space-y-8`}
         >
-          <div className="bg-white dark:bg-gray-900 p-8 rounded-[3.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl sticky top-32 transition-all">
-            <h3 className="text-xs font-black text-gray-300 uppercase tracking-[0.3em] mb-8 text-center italic">
-              Live Marketplace Preview
+          <div className="bg-white dark:bg-gray-900 p-8 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-2xl sticky top-28 transition-all">
+            <h3 className="text-xs font-black text-gray-300 uppercase tracking-[0.3em] mb-8 text-center italic underline underline-offset-8 decoration-[#16503b]">
+              Live Listing Preview
             </h3>
 
-            <div className="border-2 border-gray-100 dark:border-gray-800 rounded-[2.5rem] p-6 bg-gray-50/30 dark:bg-gray-950 shadow-inner group">
+            <div className="border-2 border-gray-100 dark:border-gray-800 rounded-[2.5rem] p-6 bg-gray-50/50 dark:bg-gray-950 shadow-inner group transition-all">
               <div className="aspect-square bg-gray-200 dark:bg-gray-800 rounded-[2rem] mb-6 relative overflow-hidden flex items-center justify-center shadow-xl">
                 {images[0] ? (
                   <img
@@ -604,14 +607,14 @@ const AddCropPage = () => {
                     Verified Seller
                   </span>
                   {formData.isOrganic && productType === 'Crop' && (
-                    <span className="bg-orange-500 text-[8px] font-black text-white px-4 py-1.5 rounded-full shadow-lg uppercase tracking-widest flex items-center gap-1">
-                      <Sparkles size={10} /> Organic
+                    <span className="bg-orange-500 text-[8px] font-black text-white px-4 py-1.5 rounded-full shadow-lg uppercase tracking-widest flex items-center gap-1 uppercase tracking-widest italic">
+                      <Sparkles size={10} /> Organic Produce
                     </span>
                   )}
                 </div>
               </div>
               <h4 className="font-black text-2xl dark:text-white truncate uppercase italic tracking-tighter leading-none">
-                {formData.name || 'PRODUCT NAME'}
+                {formData.title || 'ORGANIC PRODUCT'}
               </h4>
               <div className="mt-4 flex items-baseline gap-2">
                 <p className="text-3xl font-black text-[#16503b] dark:text-green-500 tracking-tighter">
@@ -623,7 +626,7 @@ const AddCropPage = () => {
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="text-[9px] font-black bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full text-gray-600 dark:text-gray-400 uppercase tracking-widest">
-                  {formData.category || 'TYPE'}
+                  {formData.category || 'CATEGORY'}
                 </span>
                 <span className="text-[9px] font-black bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-full text-[#16503b] dark:text-green-400 uppercase tracking-widest shadow-sm">
                   {productType === 'Crop' ? formData.grade : formData.condition}
@@ -633,8 +636,8 @@ const AddCropPage = () => {
                 {formData.description ||
                   'YOUR PRODUCT DESCRIPTION WILL BE ANALYZED BY BUYERS HERE...'}
               </p>
-              <button className="w-full bg-[#16503b] text-white py-5 rounded-[1.5rem] mt-10 font-black shadow-2xl shadow-green-900/30 hover:translate-y-[-2px] active:scale-95 transition-all uppercase tracking-[0.2em] text-xs">
-                Explore Full Details
+              <button className="w-full bg-[#16503b] text-white py-5 rounded-[1.5rem] mt-10 font-black shadow-2xl shadow-green-900/30 active:scale-95 transition-all uppercase tracking-[0.2em] text-xs cursor-pointer">
+                Explore Full Listing
               </button>
             </div>
 
@@ -659,17 +662,20 @@ const AddCropPage = () => {
                 </div>
                 <div className="mt-8 space-y-4">
                   <ScoreItem
-                    met={formData.name.length > 8}
-                    text="Descriptive Name"
+                    met={formData.title.length > 8}
+                    text="Descriptive Title"
                   />
                   <ScoreItem
                     met={formData.category !== ''}
                     text="Category Optimized"
                   />
-                  <ScoreItem met={images.length >= 3} text="Rich Media (3+)" />
+                  <ScoreItem
+                    met={images.length >= 3}
+                    text="Visual Assets (3+)"
+                  />
                   <ScoreItem
                     met={formData.location.length > 5}
-                    text="Traceability (Location)"
+                    text="Traceability Status"
                   />
                 </div>
               </div>

@@ -15,7 +15,7 @@ export const NavbarNavConfig: Record<string, NavItem[]> = {
   user: [
     { title: 'Home', href: '/' },
     { title: 'Marketplace', href: '/marketplace' },
-    { title: 'AI Doctor', href: '/dashboard/farmer/crop-doctor' },
+    { title: 'Add products', href: '/dashboard/farmer/add-crop' },
     { title: 'My Farm', href: '/dashboard/farmer' },
   ],
   admin: [
