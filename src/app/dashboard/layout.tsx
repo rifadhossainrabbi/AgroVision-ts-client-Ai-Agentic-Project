@@ -3,6 +3,8 @@ import { auth } from '@/lib/auth'; // Better Auth server-side check
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import AuthGuard from '@/components/shared/AuthGuard';
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -16,11 +18,13 @@ export default async function DashboardLayout({
   const role = session.user.role as 'admin' | 'user';
 
   return (
-    <div className="flex bg-[#f8faf9] dark:bg-gray-950 min-h-screen">
-      <DashboardSidebar role={role} />
-      <div className="flex-1 flex flex-col">
-        <main className="p-8 flex-1">{children}</main>
+    <AuthGuard>
+      <div className="flex bg-[#f8faf9] dark:bg-gray-950 min-h-screen">
+        <DashboardSidebar role={role} />
+        <div className="flex-1 flex flex-col overflow-x-hidden">
+          <main className="p-4 sm:p-6 lg:p-8 flex-1">{children}</main>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }

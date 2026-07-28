@@ -14,7 +14,7 @@ export const NavbarNavConfig: Record<string, NavItem[]> = {
   ],
   user: [
     { title: 'Home', href: '/' },
-    { title: 'Marketplace', href: '/marketplace' },
+    { title: 'Explore Marketplace', href: '/marketplace' },
     { title: 'Add products', href: '/dashboard/farmer/add-crop' },
     { title: 'My Farm', href: '/dashboard/farmer' },
   ],

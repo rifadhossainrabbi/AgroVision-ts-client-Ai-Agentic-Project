@@ -2,19 +2,23 @@ import {
   LayoutDashboard,
   Stethoscope,
   LineChart,
-  Store,
   Package,
   History,
   Bell,
   Settings,
   ShieldCheck,
   Users,
+  ShoppingCart,
+  ShoppingBag,
+  ClipboardList,
+  PlusCircle,
 } from 'lucide-react';
 
 export const DashboardNavConfig = {
   admin: [
     { title: 'Admin Dashboard', href: '/dashboard/admin', icon: ShieldCheck },
     { title: 'Manage Users', href: '/dashboard/admin/users', icon: Users },
+    { title: 'Manage Products', href: '/dashboard/admin/products', icon: Package },
     { title: 'Settings', href: '/dashboard/admin/settings', icon: Settings },
   ],
   user: [
@@ -30,19 +34,29 @@ export const DashboardNavConfig = {
       icon: LineChart,
     },
     {
-      title: 'Marketplace',
-      href: '/dashboard/farmer/marketplace',
-      icon: Store,
-    },
-    {
       title: 'Add Products',
       href: '/dashboard/farmer/add-crop',
-      icon: Package,
+      icon: PlusCircle,
     },
     {
       title: 'My Products',
       href: '/dashboard/farmer/my-products',
       icon: Package,
+    },
+    {
+      title: 'My Cart',
+      href: '/dashboard/farmer/my-cart',
+      icon: ShoppingCart,
+    },
+    {
+      title: 'My Requests',
+      href: '/dashboard/farmer/my-requests',
+      icon: ShoppingBag,
+    },
+    {
+      title: 'My Orders',
+      href: '/dashboard/farmer/my-orders',
+      icon: ClipboardList,
     },
     {
       title: 'Diagnosis History',

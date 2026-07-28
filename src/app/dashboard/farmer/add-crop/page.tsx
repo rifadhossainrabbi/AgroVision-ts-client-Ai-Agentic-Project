@@ -18,9 +18,10 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
-import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
+import { authClient } from '@/lib/auth-client';
 
 // --- কৃষি সম্পর্কিত কনস্ট্যান্টস ---
 const CATEGORIES = {
@@ -71,6 +72,7 @@ const AddCropPage = () => {
     location: '',
     // Crop Specific
     harvestDate: '',
+    quantity: 0,
     freshness: 'Fresh',
     isOrganic: false,
     grade: GRADES[0],
