@@ -65,7 +65,6 @@ export const DashboardNavConfig = {
     },
   ],
   system: [
-    { title: 'Notifications', href: '/dashboard/notifications', icon: Bell },
-    { title: 'Settings', href: '/dashboard/settings', icon: Settings },
+    // { title: 'Notifications', href: '/dashboard/notifications', icon: Bell },
   ],
 };

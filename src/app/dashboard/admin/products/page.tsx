@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import AuthGuard from '@/components/shared/AuthGuard';
+import DeleteModal from '@/components/DeleteModal';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -38,6 +39,10 @@ const AdminManageProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [actionId, setActionId] = useState<string | null>(null);
+  const [productToDelete, setProductToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // Fetch all products for admin (includes pending, active, rejected)
   const { data, isLoading, error } = useQuery({
@@ -57,8 +62,16 @@ const AdminManageProductsPage = () => {
 
   // Update Product Status Mutation (Approve / Reject)
   const statusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: 'active' | 'pending' | 'rejected' }) => {
-      const res = await axios.patch(`${API_BASE}/admin/products/${id}/status`, { status });
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: 'active' | 'pending' | 'rejected';
+    }) => {
+      const res = await axios.patch(`${API_BASE}/admin/products/${id}/status`, {
+        status,
+      });
       return res.data;
     },
     onSuccess: (data, variables) => {
@@ -73,7 +86,9 @@ const AdminManageProductsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products-list'] });
     },
     onError: (err: any) => {
-      toast.error(`Failed to update status: ${err.response?.data?.error || err.message}`);
+      toast.error(
+        `Failed to update status: ${err.response?.data?.error || err.message}`,
+      );
       setActionId(null);
     },
   });
@@ -85,30 +100,37 @@ const AdminManageProductsPage = () => {
       return res.data;
     },
     onSuccess: () => {
-      toast.success('Product and all related likes, comments, cart, and orders deleted!');
+      toast.success(
+        'Product and all related likes, comments, cart, and orders deleted!',
+      );
       setActionId(null);
+      setProductToDelete(null);
       queryClient.invalidateQueries({ queryKey: ['admin-products-list'] });
     },
     onError: (err: any) => {
-      toast.error(`Failed to delete product: ${err.response?.data?.error || err.message}`);
+      toast.error(
+        `Failed to delete product: ${err.response?.data?.error || err.message}`,
+      );
       setActionId(null);
     },
   });
 
-  const handleStatusChange = (id: string, status: 'active' | 'pending' | 'rejected') => {
+  const handleStatusChange = (
+    id: string,
+    status: 'active' | 'pending' | 'rejected',
+  ) => {
     setActionId(id);
     statusMutation.mutate({ id, status });
   };
 
   const handleDeleteProduct = (id: string, title: string) => {
-    if (
-      confirm(
-        `Are you sure you want to delete product "${title}"? This will delete all associated likes, comments, cart items, and buy requests!`,
-      )
-    ) {
-      setActionId(id);
-      deleteProductMutation.mutate(id);
-    }
+    setProductToDelete({ id, title });
+  };
+
+  const confirmDeleteProduct = () => {
+    if (!productToDelete) return;
+    setActionId(productToDelete.id);
+    deleteProductMutation.mutate(productToDelete.id);
   };
 
   return (
@@ -123,9 +145,12 @@ const AdminManageProductsPage = () => {
                 Marketplace Approvals
               </span>
             </div>
-            <h1 className="text-3xl font-black mt-2">Manage All Platform Items</h1>
+            <h1 className="text-3xl font-black mt-2">
+              Manage All Platform Items
+            </h1>
             <p className="text-gray-300 text-sm mt-1">
-              Approve pending listings before they appear in the marketplace, or delete invalid items.
+              Approve pending listings before they appear in the marketplace, or
+              delete invalid items.
             </p>
           </div>
           <div className="bg-white/10 px-4 py-2 rounded-2xl backdrop-blur-md font-bold text-sm">
@@ -136,7 +161,10 @@ const AdminManageProductsPage = () => {
         {/* Filter & Search Toolbar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-[#0b1120] p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
           <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Search product title..."
@@ -148,7 +176,9 @@ const AdminManageProductsPage = () => {
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter size={16} className="text-gray-400" />
-            <span className="text-xs font-bold text-gray-400 uppercase">Status:</span>
+            <span className="text-xs font-bold text-gray-400 uppercase">
+              Status:
+            </span>
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
@@ -166,7 +196,10 @@ const AdminManageProductsPage = () => {
         <div className="bg-white dark:bg-[#0b1120] rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm">
           {isLoading ? (
             <div className="p-12 text-center">
-              <Loader2 className="animate-spin text-[#16503b] mx-auto" size={40} />
+              <Loader2
+                className="animate-spin text-[#16503b] mx-auto"
+                size={40}
+              />
               <p className="mt-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
                 Fetching platform listings...
               </p>
@@ -192,7 +225,10 @@ const AdminManageProductsPage = () => {
                   {products.map(product => {
                     const isBusy = actionId === product._id;
                     return (
-                      <tr key={product._id} className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors">
+                      <tr
+                        key={product._id}
+                        className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
+                      >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <img
@@ -205,7 +241,8 @@ const AdminManageProductsPage = () => {
                                 {product.title}
                               </p>
                               <span className="text-[10px] font-semibold text-gray-400">
-                                Seller: {product.sellerName || 'AgroVision Member'}
+                                Seller:{' '}
+                                {product.sellerName || 'AgroVision Member'}
                               </span>
                             </div>
                           </div>
@@ -226,31 +263,51 @@ const AdminManageProductsPage = () => {
                                   : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
                             }`}
                           >
-                            {product.status === 'active' && <CheckCircle size={12} />}
-                            {product.status === 'pending' && <Clock size={12} />}
-                            {product.status === 'rejected' && <XCircle size={12} />}
-                            {product.status === 'active' ? 'Approved' : product.status}
+                            {product.status === 'active' && (
+                              <CheckCircle size={12} />
+                            )}
+                            {product.status === 'pending' && (
+                              <Clock size={12} />
+                            )}
+                            {product.status === 'rejected' && (
+                              <XCircle size={12} />
+                            )}
+                            {product.status === 'active'
+                              ? 'Approved'
+                              : product.status}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-center gap-2">
                             {product.status !== 'active' && (
                               <button
-                                onClick={() => handleStatusChange(product._id, 'active')}
+                                onClick={() =>
+                                  handleStatusChange(product._id, 'active')
+                                }
                                 disabled={isBusy}
                                 className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
                               >
-                                {isBusy ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle size={12} />}
+                                {isBusy ? (
+                                  <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                  <CheckCircle size={12} />
+                                )}
                                 Approve
                               </button>
                             )}
                             {product.status !== 'rejected' && (
                               <button
-                                onClick={() => handleStatusChange(product._id, 'rejected')}
+                                onClick={() =>
+                                  handleStatusChange(product._id, 'rejected')
+                                }
                                 disabled={isBusy}
                                 className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
                               >
-                                {isBusy ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
+                                {isBusy ? (
+                                  <Loader2 size={12} className="animate-spin" />
+                                ) : (
+                                  <XCircle size={12} />
+                                )}
                                 Reject
                               </button>
                             )}
@@ -265,12 +322,18 @@ const AdminManageProductsPage = () => {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <button
-                            onClick={() => handleDeleteProduct(product._id, product.title)}
+                            onClick={() =>
+                              handleDeleteProduct(product._id, product.title)
+                            }
                             disabled={isBusy}
                             className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
                             title="Delete Product & Cascading Data"
                           >
-                            {isBusy ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                            {isBusy ? (
+                              <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={18} />
+                            )}
                           </button>
                         </td>
                       </tr>
@@ -286,6 +349,19 @@ const AdminManageProductsPage = () => {
           )}
         </div>
       </div>
+
+      <DeleteModal
+        isOpen={!!productToDelete}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={confirmDeleteProduct}
+        isLoading={deleteProductMutation.isPending}
+        title="Delete Product"
+        description={
+          productToDelete
+            ? `Are you sure you want to delete "${productToDelete.title}"? This will delete all associated likes, comments, cart items, and buy requests.`
+            : undefined
+        }
+      />
     </AuthGuard>
   );
 };
