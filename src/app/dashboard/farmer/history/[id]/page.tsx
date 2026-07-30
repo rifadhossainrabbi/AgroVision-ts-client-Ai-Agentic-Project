@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { ArrowLeft, Clock3, Loader2, Stethoscope } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { API_BASE_URL } from '@/lib/config';
@@ -19,7 +19,7 @@ const DiagnosisDetailPage = () => {
     queryKey: ['diagnosis-detail', userId, diagnosisId],
     queryFn: async () => {
       if (!userId) return { diagnoses: [] };
-      const res = await axios.get(`${API_BASE_URL}/ai/diagnoses/${userId}`);
+      const res = await api.get(`${API_BASE_URL}/ai/diagnoses/${userId}`);
       return res.data;
     },
     enabled: !!userId && !!diagnosisId,

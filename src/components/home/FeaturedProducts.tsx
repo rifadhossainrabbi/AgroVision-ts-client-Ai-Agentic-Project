@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { Sparkles, Star, MapPin, ArrowRight } from 'lucide-react';
 
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 
 interface FeaturedProduct {
   _id: string;
@@ -22,7 +22,7 @@ const FeaturedProducts = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['featured-products'],
     queryFn: async () => {
-      const res = await axios.get('/products/featured');
+      const res = await api.get('/products/featured');
       return res.data;
     },
   });

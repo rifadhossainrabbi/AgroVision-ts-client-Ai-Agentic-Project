@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import {
   Package,
@@ -52,7 +52,7 @@ const AdminManageProductsPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin-products-list', statusFilter, searchTerm],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/admin/products/all`, {
+      const res = await api.get(`${API_BASE}/admin/products/all`, {
         params: {
           search: searchTerm,
           status: statusFilter,
@@ -68,7 +68,7 @@ const AdminManageProductsPage = () => {
   const { data: featuredData } = useQuery({
     queryKey: ['featured-products'],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/products/featured`);
+      const res = await api.get(`${API_BASE}/products/featured`);
       return res.data;
     },
   });
@@ -77,7 +77,7 @@ const AdminManageProductsPage = () => {
   // Toggle Featured Mutation (Home Page Featured Section, Max 6)
   const featureMutation = useMutation({
     mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
-      const res = await axios.patch(
+      const res = await api.patch(
         `${API_BASE}/admin/products/${id}/feature`,
         {
           featured,
@@ -118,7 +118,7 @@ const AdminManageProductsPage = () => {
       id: string;
       status: 'active' | 'pending' | 'rejected';
     }) => {
-      const res = await axios.patch(`${API_BASE}/admin/products/${id}/status`, {
+      const res = await api.patch(`${API_BASE}/admin/products/${id}/status`, {
         status,
       });
       return res.data;
@@ -145,7 +145,7 @@ const AdminManageProductsPage = () => {
   // Delete Product Mutation (Cascading Deletion)
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await axios.delete(`${API_BASE}/products/${id}`);
+      const res = await api.delete(`${API_BASE}/products/${id}`);
       return res.data;
     },
     onSuccess: () => {

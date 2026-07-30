@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -87,7 +87,7 @@ const CropDoctorPage = () => {
   const uploadToImgBB = async (imgFile: File) => {
     const body = new FormData();
     body.append('image', imgFile);
-    const res = await axios.post(
+    const res = await api.post(
       `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
       body,
     );
@@ -113,7 +113,7 @@ const CropDoctorPage = () => {
         uploadToImgBB(file),
       ]);
 
-      const res = await axios.post(`${API_BASE}/ai/crop-doctor`, {
+      const res = await api.post(`${API_BASE}/ai/crop-doctor`, {
         imageBase64: base64,
         mimeType: file.type,
         imageUrl: uploadedUrl,

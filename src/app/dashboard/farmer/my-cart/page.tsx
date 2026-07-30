@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import { ShoppingCart, Trash2, ExternalLink, Loader2, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -37,7 +37,7 @@ const MyCartPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['my-cart', currentUser?.id],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/cart/${currentUser?.id}`);
+      const res = await api.get(`${API_BASE}/cart/${currentUser?.id}`);
       return res.data;
     },
     enabled: !!currentUser?.id,
@@ -46,7 +46,7 @@ const MyCartPage = () => {
   // Remove from cart mutation
   const deleteCartMutation = useMutation({
     mutationFn: async (productId: string) => {
-      await axios.delete(`${API_BASE}/cart/${productId}/${currentUser?.id}`);
+      await api.delete(`${API_BASE}/cart/${productId}/${currentUser?.id}`);
     },
     onSuccess: () => {
       setIsDeleteModalOpen(false);

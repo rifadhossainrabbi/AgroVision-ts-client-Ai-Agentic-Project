@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -116,7 +116,7 @@ const FarmAnalyzerPage = () => {
     queryKey: ['farm-analyses', userId],
     queryFn: async () => {
       if (!userId) return { analyses: [] };
-      const res = await axios.get(`${API_BASE}/ai/farm-analyses/${userId}`);
+      const res = await api.get(`${API_BASE}/ai/farm-analyses/${userId}`);
       return res.data;
     },
     enabled: !!userId,
@@ -127,7 +127,7 @@ const FarmAnalyzerPage = () => {
       if (!form.cropType || !form.soilType || !form.landSize) {
         throw new Error('Crop type, soil type and land size are required');
       }
-      const res = await axios.post(`${API_BASE}/ai/farm-analyzer`, {
+      const res = await api.post(`${API_BASE}/ai/farm-analyzer`, {
         ...form,
         userId: userId || 'anonymous',
       });

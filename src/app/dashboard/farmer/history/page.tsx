@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 
 const SEVERITY_STYLES: Record<string, string> = {
   Healthy:
@@ -46,7 +46,7 @@ const DiagnosisHistoryPage = () => {
     queryKey: ['diagnosis-history', userId],
     queryFn: async () => {
       if (!userId) return { diagnoses: [] };
-      const res = await axios.get(`/ai/diagnoses/${userId}`);
+      const res = await api.get(`/ai/diagnoses/${userId}`);
       return res.data;
     },
     enabled: !!userId,
@@ -54,7 +54,7 @@ const DiagnosisHistoryPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return (await axios.delete(`/ai/diagnoses/${id}`)).data;
+      return (await api.delete(`/ai/diagnoses/${id}`)).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

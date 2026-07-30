@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import {
   Users,
   Package,
@@ -40,7 +40,7 @@ const AdminDashboardHomePage = () => {
   const { data: usersData, isLoading: loadingUsers } = useQuery({
     queryKey: ['admin-users-stats'],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/admin/users`);
+      const res = await api.get(`${API_BASE}/admin/users`);
       return res.data;
     },
   });
@@ -48,7 +48,7 @@ const AdminDashboardHomePage = () => {
   const { data: productsData, isLoading: loadingProducts } = useQuery({
     queryKey: ['admin-products-stats'],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/admin/products/all`);
+      const res = await api.get(`${API_BASE}/admin/products/all`);
       return res.data;
     },
   });

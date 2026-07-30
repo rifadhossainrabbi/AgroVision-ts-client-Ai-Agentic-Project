@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 import { ArrowLeft, Loader2, Save, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -30,7 +30,7 @@ const EditProductPage = () => {
     const fetchProduct = async () => {
       if (!productId) return;
       try {
-        const res = await axios.get(`/products/${productId}`);
+        const res = await api.get(`/products/${productId}`);
         const product = res.data?.product;
         setFormData({
           title: product?.title || '',
@@ -84,7 +84,7 @@ const EditProductPage = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.patch(`/products/${productId}`, {
+      await api.patch(`/products/${productId}`, {
         ...formData,
         price: Number(formData.price),
       });

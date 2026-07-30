@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import {
   Users,
@@ -44,7 +44,7 @@ const AdminManageUsersPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin-users-list'],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/admin/users`);
+      const res = await api.get(`${API_BASE}/admin/users`);
       return res.data;
     },
   });
@@ -54,7 +54,7 @@ const AdminManageUsersPage = () => {
   // Delete User Mutation (Cascading Deletion)
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
-      const res = await axios.delete(`${API_BASE}/admin/users/${userId}`);
+      const res = await api.delete(`${API_BASE}/admin/users/${userId}`);
       return res.data;
     },
     onSuccess: () => {

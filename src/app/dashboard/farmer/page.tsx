@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import {
   Package,
@@ -44,7 +44,7 @@ const FarmerDashboardHomePage = () => {
     queryKey: ['my-products-count', userId],
     queryFn: async () => {
       if (!userId) return { total: 0 };
-      const res = await axios.get(`${API_BASE}/my-products/${userId}`);
+      const res = await api.get(`${API_BASE}/my-products/${userId}`);
       return res.data;
     },
     enabled: !!userId,
@@ -54,7 +54,7 @@ const FarmerDashboardHomePage = () => {
     queryKey: ['my-cart-count', userId],
     queryFn: async () => {
       if (!userId) return { cartItems: [] };
-      const res = await axios.get(`${API_BASE}/cart/${userId}`);
+      const res = await api.get(`${API_BASE}/cart/${userId}`);
       return res.data;
     },
     enabled: !!userId,
@@ -64,7 +64,7 @@ const FarmerDashboardHomePage = () => {
     queryKey: ['my-requests-count', userId],
     queryFn: async () => {
       if (!userId) return { requests: [] };
-      const res = await axios.get(`${API_BASE}/buy-requests/user/${userId}`);
+      const res = await api.get(`${API_BASE}/buy-requests/user/${userId}`);
       return res.data;
     },
     enabled: !!userId,
@@ -74,7 +74,7 @@ const FarmerDashboardHomePage = () => {
     queryKey: ['my-orders-count', userId],
     queryFn: async () => {
       if (!userId) return { orders: [] };
-      const res = await axios.get(`${API_BASE}/buy-requests/seller/${userId}`);
+      const res = await api.get(`${API_BASE}/buy-requests/seller/${userId}`);
       return res.data;
     },
     enabled: !!userId,

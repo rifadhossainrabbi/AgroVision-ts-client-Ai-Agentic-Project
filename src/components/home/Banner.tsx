@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination, EffectFade } from 'swiper/modules';
 import { ArrowRight } from 'lucide-react';
@@ -57,6 +58,8 @@ const bannerData = [
 ];
 
 const Banner = () => {
+  const router = useRouter();
+
   return (
     <section className="w-full h-[60vh] md:h-[85vh] relative overflow-hidden">
       <Swiper
@@ -91,7 +94,10 @@ const Banner = () => {
                 </p>
 
                 <div className="pt-4 animate-in fade-in slide-in-from-bottom-16 duration-1000">
-                  <button className="group relative bg-[#16503b] hover:bg-[#12402f] text-white px-10 py-4 rounded-full font-bold text-lg flex items-center gap-2 mx-auto transition-all cursor-pointer active:scale-95 shadow-xl">
+                  <button
+                    onClick={() => router.push('/marketplace')}
+                    className="group relative bg-[#16503b] hover:bg-[#12402f] text-white px-10 py-4 rounded-full font-bold text-lg flex items-center gap-2 mx-auto transition-all cursor-pointer active:scale-95 shadow-xl"
+                  >
                     Explore
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                   </button>

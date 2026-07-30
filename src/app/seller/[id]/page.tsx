@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 import { ArrowLeft, Loader2, MapPin, Package, Star } from 'lucide-react';
 
 const SellerProfilePage = () => {
@@ -14,7 +14,7 @@ const SellerProfilePage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['seller-products', sellerId],
     queryFn: async () => {
-      const res = await axios.get(`/my-products/${sellerId}`);
+      const res = await api.get(`/my-products/${sellerId}`);
       return res.data;
     },
     enabled: !!sellerId,

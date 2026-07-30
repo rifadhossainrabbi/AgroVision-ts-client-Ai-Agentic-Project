@@ -16,7 +16,7 @@ import {
   MapPin,
   Truck,
 } from 'lucide-react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -105,7 +105,7 @@ const AddCropPage = () => {
   const aiDescriptionMutation = useMutation({
     mutationFn: async () => {
       return (
-        await axios.post('/ai/generate-description', {
+        await api.post('/ai/generate-description', {
           title: formData.title,
           category: formData.category,
           productType,
@@ -148,7 +148,7 @@ const AddCropPage = () => {
   const uploadToImgBB = async (file: File) => {
     const body = new FormData();
     body.append('image', file);
-    const res = await axios.post(
+    const res = await api.post(
       `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
       body,
     );
@@ -157,7 +157,7 @@ const AddCropPage = () => {
 
   const publishMutation = useMutation({
     mutationFn: async (payload: any) => {
-      return (await axios.post('/products/add', payload)).data;
+      return (await api.post('/products/add', payload)).data;
     },
     onSuccess: () => {
       alert('✅ LISTING PUBLISHED SUCCESSFULLY!');

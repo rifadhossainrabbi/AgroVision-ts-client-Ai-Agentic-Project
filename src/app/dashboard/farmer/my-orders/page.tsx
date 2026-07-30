@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import {
   ClipboardList,
@@ -44,7 +44,7 @@ const MyOrdersPage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['my-orders', currentUser?.id],
     queryFn: async () => {
-      const res = await axios.get(
+      const res = await api.get(
         `${API_BASE}/buy-requests/seller/${currentUser?.id}`,
       );
       return res.data;
@@ -63,7 +63,7 @@ const MyOrdersPage = () => {
       userId: string;
       status: 'accepted' | 'rejected';
     }) => {
-      const res = await axios.patch(`${API_BASE}/buy-requests/status`, {
+      const res = await api.patch(`${API_BASE}/buy-requests/status`, {
         productId,
         userId,
         status,

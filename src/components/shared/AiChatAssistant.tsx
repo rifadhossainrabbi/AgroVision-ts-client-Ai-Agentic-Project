@@ -2,8 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { usePathname, useParams } from 'next/navigation';
-import axios from '@/lib/axios';
-import api from '@/lib/api-client';
+import api from '@/lib/api';
 import { Bot, Send, X, Sparkles, Loader2 } from 'lucide-react';
 
 type ChatMessage = {
@@ -55,7 +54,7 @@ const AiChatAssistant = () => {
     setSuggestions([]);
 
     try {
-      const { data } = await axios.post('/ai/chat', {
+      const { data } = await api.post('/ai/chat', {
         message: trimmed,
         history: nextHistory.map(m => ({ role: m.role, content: m.content })),
         context: {

@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 import { API_BASE_URL } from '@/lib/config';
 import {
   Star,
@@ -111,7 +111,7 @@ const ProductDetailsPage = () => {
   } = useQuery({
     queryKey: ['product', productId],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/products/${productId}`);
+      const res = await api.get(`${API_BASE}/products/${productId}`);
       return res.data;
     },
     enabled: !!productId,
@@ -124,7 +124,7 @@ const ProductDetailsPage = () => {
   const { data: relatedProducts } = useQuery({
     queryKey: ['related-products', product?.category],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/products/all`, {
+      const res = await api.get(`${API_BASE}/products/all`, {
         params: { category: product?.category, limit: 4 },
       });
       return res.data;
@@ -136,7 +136,7 @@ const ProductDetailsPage = () => {
   const { data: likeData } = useQuery({
     queryKey: ['likes', productId, currentUser?.name],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/likes/${productId}`, {
+      const res = await api.get(`${API_BASE}/likes/${productId}`, {
         params: { userName: currentUser?.name },
       });
       return res.data;
@@ -146,7 +146,7 @@ const ProductDetailsPage = () => {
 
   const likeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post(`${API_BASE}/likes/toggle`, {
+      const res = await api.post(`${API_BASE}/likes/toggle`, {
         productId,
         userName: currentUser?.name,
       });
@@ -176,7 +176,7 @@ const ProductDetailsPage = () => {
   // --- Buy Now & Add to Cart Mutations ---
   const buyNowMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post(`${API_BASE}/buy-requests`, {
+      const res = await api.post(`${API_BASE}/buy-requests`, {
         productId,
         productTitle: product.title,
         mainImage: product.mainImage,
@@ -223,7 +223,7 @@ const ProductDetailsPage = () => {
 
   const addToCartMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post(`${API_BASE}/cart`, {
+      const res = await api.post(`${API_BASE}/cart`, {
         productId,
         productTitle: product.title,
         mainImage: product.mainImage,
@@ -270,7 +270,7 @@ const ProductDetailsPage = () => {
   const { data: commentsData, isLoading: commentsLoading } = useQuery({
     queryKey: ['comments', productId],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/comments/${productId}`);
+      const res = await api.get(`${API_BASE}/comments/${productId}`);
       return res.data;
     },
     enabled: !!productId,
@@ -280,7 +280,7 @@ const ProductDetailsPage = () => {
 
   const addCommentMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post(`${API_BASE}/comments/add`, {
+      const res = await api.post(`${API_BASE}/comments/add`, {
         productId,
         userId: currentUser?.id,
         userName: currentUser?.name,
@@ -300,7 +300,7 @@ const ProductDetailsPage = () => {
 
   const deleteCommentMutation = useMutation({
     mutationFn: async (commentId: string) => {
-      const res = await axios.delete(`${API_BASE}/comments/${commentId}`);
+      const res = await api.delete(`${API_BASE}/comments/${commentId}`);
       return res.data;
     },
     onSuccess: () => {

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import {
   ShoppingBag,
@@ -46,7 +46,7 @@ const MyRequestsPage = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['my-requests', currentUser?.id],
     queryFn: async () => {
-      const res = await axios.get(
+      const res = await api.get(
         `${API_BASE}/buy-requests/user/${currentUser?.id}`,
       );
       return res.data;
@@ -57,7 +57,7 @@ const MyRequestsPage = () => {
   // Delete buy request mutation
   const deleteMutation = useMutation({
     mutationFn: async (productId: string) => {
-      await axios.delete(
+      await api.delete(
         `${API_BASE}/buy-requests/${productId}/${currentUser?.id}`,
       );
     },

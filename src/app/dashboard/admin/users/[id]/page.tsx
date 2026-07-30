@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -69,7 +69,7 @@ const AdminUserDetailPage = () => {
   } = useQuery({
     queryKey: ['admin-user-detail', userId],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE}/admin/users/${userId}`);
+      const res = await api.get(`${API_BASE}/admin/users/${userId}`);
       return res.data;
     },
     enabled: !!userId,
@@ -80,7 +80,7 @@ const AdminUserDetailPage = () => {
   const { data: productsData, isLoading: isProductsLoading } = useQuery({
     queryKey: ['admin-user-products', userId, page],
     queryFn: async () => {
-      const res = await axios.get(
+      const res = await api.get(
         `${API_BASE}/my-products/${userId}?page=${page}`,
       );
       return res.data;

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from '@/lib/axios';
+import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { authClient } from '@/lib/auth-client';
 import {
@@ -28,7 +28,7 @@ const MyProductPage = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['my-products', session?.user?.id, page],
     queryFn: async () => {
-      const res = await axios.get(
+      const res = await api.get(
         `/my-products/${session?.user?.id}?page=${page}`,
       );
       return res.data;
@@ -39,7 +39,7 @@ const MyProductPage = () => {
   // ২. TanStack Mutation: প্রোডাক্ট ডিলিট করা
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`/products/${id}`);
+      await api.delete(`/products/${id}`);
     },
     onSuccess: () => {
       toast.success('Product deleted successfully');
