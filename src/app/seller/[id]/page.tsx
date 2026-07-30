@@ -14,7 +14,7 @@ const SellerProfilePage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['seller-products', sellerId],
     queryFn: async () => {
-      const res = await api.get(`/my-products/${sellerId}`);
+      const res = await axios.get(`/my-products/${sellerId}`);
       return res.data;
     },
     enabled: !!sellerId,

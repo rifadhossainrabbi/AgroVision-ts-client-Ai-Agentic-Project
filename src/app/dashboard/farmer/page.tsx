@@ -31,7 +31,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 const FarmerDashboardHomePage = () => {
   const { data: session } = authClient.useSession();

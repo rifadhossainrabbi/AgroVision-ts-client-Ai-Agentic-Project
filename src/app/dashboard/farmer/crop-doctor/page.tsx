@@ -24,7 +24,9 @@ import {
 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 type Diagnosis = {
   _id: string;

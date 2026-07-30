@@ -62,7 +62,7 @@ const MarketPlacePage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['marketplace', searchTerm, productType, category, sortBy, page],
     queryFn: async () => {
-      const res = await api.get(`/products/all`, {
+      const res = await axios.get(`/products/all`, {
         params: {
           search: searchTerm || undefined,
           type: productType === 'All' ? undefined : productType,

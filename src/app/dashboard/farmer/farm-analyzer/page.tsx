@@ -31,7 +31,9 @@ import {
 } from 'recharts';
 import { authClient } from '@/lib/auth-client';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 const SOIL_TYPES = ['Loamy', 'Clay', 'Sandy', 'Silty', 'Peaty', 'Chalky'];
 const SEASONS = [
