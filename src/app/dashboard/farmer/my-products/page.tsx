@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import axios from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { authClient } from '@/lib/auth-client';
 import {
