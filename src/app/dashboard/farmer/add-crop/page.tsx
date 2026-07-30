@@ -160,11 +160,11 @@ const AddCropPage = () => {
       return (await api.post('/products/add', payload)).data;
     },
     onSuccess: () => {
-      alert('✅ LISTING PUBLISHED SUCCESSFULLY!');
+      toast.success('✅ LISTING PUBLISHED SUCCESSFULLY!');
       router.push('/dashboard/farmer/my-products');
     },
     onError: (err: any) =>
-      alert(`❌ FAILED: ${err.response?.data?.error || err.message}`),
+      toast.error(`❌ FAILED: ${err.response?.data?.error || err.message}`),
   });
 
   const handlePublish = async () => {
@@ -184,7 +184,7 @@ const AddCropPage = () => {
         extraImages: urls.slice(1),
         productType,
         rating: 5,
-        status: 'active',
+        status: 'pending',
         createdAt: new Date(),
       };
       publishMutation.mutate(payload);

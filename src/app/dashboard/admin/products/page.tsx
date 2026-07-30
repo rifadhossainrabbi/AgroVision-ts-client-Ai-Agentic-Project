@@ -77,12 +77,9 @@ const AdminManageProductsPage = () => {
   // Toggle Featured Mutation (Home Page Featured Section, Max 6)
   const featureMutation = useMutation({
     mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
-      const res = await api.patch(
-        `${API_BASE}/admin/products/${id}/feature`,
-        {
-          featured,
-        },
-      );
+      const res = await api.patch(`${API_BASE}/admin/products/${id}/feature`, {
+        featured,
+      });
       return res.data;
     },
     onSuccess: (_data, variables) => {
@@ -127,9 +124,7 @@ const AdminManageProductsPage = () => {
       const statusText =
         variables.status === 'active'
           ? 'Approved & Published to Marketplace!'
-          : variables.status === 'rejected'
-            ? 'Rejected & Hidden from Marketplace'
-            : 'Set to Pending Review';
+          : 'Rejected & Moved back to Pending Review';
       toast.success(statusText);
       setActionId(null);
       queryClient.invalidateQueries({ queryKey: ['admin-products-list'] });
@@ -397,10 +392,10 @@ const AdminManageProductsPage = () => {
                                 Approve
                               </button>
                             )}
-                            {product.status !== 'rejected' && (
+                            {product.status === 'active' && (
                               <button
                                 onClick={() =>
-                                  handleStatusChange(product._id, 'rejected')
+                                  handleStatusChange(product._id, 'pending')
                                 }
                                 disabled={isBusy}
                                 className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
