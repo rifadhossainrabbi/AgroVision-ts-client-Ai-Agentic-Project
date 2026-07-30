@@ -20,7 +20,9 @@ import Link from 'next/link';
 import AuthGuard from '@/components/shared/AuthGuard';
 import DeleteModal from '@/components/DeleteModal';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 interface ProductItem {
   _id: string;
@@ -75,9 +77,12 @@ const AdminManageProductsPage = () => {
   // Toggle Featured Mutation (Home Page Featured Section, Max 6)
   const featureMutation = useMutation({
     mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
-      const res = await axios.patch(`${API_BASE}/admin/products/${id}/feature`, {
-        featured,
-      });
+      const res = await axios.patch(
+        `${API_BASE}/admin/products/${id}/feature`,
+        {
+          featured,
+        },
+      );
       return res.data;
     },
     onSuccess: (_data, variables) => {
@@ -343,8 +348,7 @@ const AdminManageProductsPage = () => {
                               }
                               disabled={
                                 isBusy ||
-                                (!product.isFeatured &&
-                                  featuredCount >= 6) ||
+                                (!product.isFeatured && featuredCount >= 6) ||
                                 product.status !== 'active'
                               }
                               title={

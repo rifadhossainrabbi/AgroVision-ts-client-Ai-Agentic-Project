@@ -16,7 +16,9 @@ import {
 import Link from 'next/link';
 import DeleteModal from '@/components/DeleteModal';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 interface BuyRequestItem {
   _id: string;
@@ -35,7 +37,9 @@ const MyRequestsPage = () => {
   const { data: session } = authClient.useSession();
   const currentUser = session?.user;
 
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Fetch purchase requests made by current user
@@ -53,7 +57,9 @@ const MyRequestsPage = () => {
   // Delete buy request mutation
   const deleteMutation = useMutation({
     mutationFn: async (productId: string) => {
-      await axios.delete(`${API_BASE}/buy-requests/${productId}/${currentUser?.id}`);
+      await axios.delete(
+        `${API_BASE}/buy-requests/${productId}/${currentUser?.id}`,
+      );
     },
     onSuccess: () => {
       setIsDeleteModalOpen(false);
@@ -80,7 +86,9 @@ const MyRequestsPage = () => {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
         <Loader2 className="animate-spin text-[#16503b]" size={48} />
-        <p className="text-gray-500 font-medium">Loading your purchase requests...</p>
+        <p className="text-gray-500 font-medium">
+          Loading your purchase requests...
+        </p>
       </div>
     );
   }

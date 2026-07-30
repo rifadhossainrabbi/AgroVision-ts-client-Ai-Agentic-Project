@@ -16,7 +16,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 interface OrderItem {
   _id: string;
@@ -72,7 +74,9 @@ const MyOrdersPage = () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
     },
     onError: (err: any) => {
-      alert(`❌ Status update failed: ${err.response?.data?.error || err.message}`);
+      alert(
+        `❌ Status update failed: ${err.response?.data?.error || err.message}`,
+      );
     },
   });
 
@@ -101,7 +105,8 @@ const MyOrdersPage = () => {
       <div className="mb-8 flex justify-between items-center flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
-            <ClipboardList size={32} className="text-[#16503b]" /> Incoming Orders
+            <ClipboardList size={32} className="text-[#16503b]" /> Incoming
+            Orders
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm font-medium">
             Review and accept/reject buy requests for your published inventory
@@ -223,7 +228,11 @@ const MyOrdersPage = () => {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() =>
-                            handleStatusChange(item.productId, item.userId, 'accepted')
+                            handleStatusChange(
+                              item.productId,
+                              item.userId,
+                              'accepted',
+                            )
                           }
                           disabled={
                             updateStatusMutation.isPending ||
@@ -236,7 +245,11 @@ const MyOrdersPage = () => {
                         </button>
                         <button
                           onClick={() =>
-                            handleStatusChange(item.productId, item.userId, 'rejected')
+                            handleStatusChange(
+                              item.productId,
+                              item.userId,
+                              'rejected',
+                            )
                           }
                           disabled={
                             updateStatusMutation.isPending ||

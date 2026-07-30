@@ -4,7 +4,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import api from '@/lib/api-client';
+import axios from '@/lib/axios';
+import { API_BASE_URL } from '@/lib/config';
 import {
   Star,
   StarHalf,
@@ -23,6 +24,8 @@ import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import AuthGuard from '@/components/shared/AuthGuard';
 import toast from 'react-hot-toast';
+
+const API_BASE = API_BASE_URL;
 
 // use shared api client
 

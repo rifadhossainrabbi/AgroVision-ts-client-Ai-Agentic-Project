@@ -4,17 +4,13 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { authClient } from '@/lib/auth-client';
-import {
-  ShoppingCart,
-  Trash2,
-  ExternalLink,
-  Loader2,
-  Zap,
-} from 'lucide-react';
+import { ShoppingCart, Trash2, ExternalLink, Loader2, Zap } from 'lucide-react';
 import Link from 'next/link';
 import DeleteModal from '@/components/DeleteModal';
 
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
+
+const API_BASE = API_BASE_URL;
 
 interface CartItem {
   _id: string;
@@ -32,7 +28,9 @@ const MyCartPage = () => {
   const { data: session } = authClient.useSession();
   const currentUser = session?.user;
 
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Fetch cart items for current user
@@ -56,7 +54,9 @@ const MyCartPage = () => {
       queryClient.invalidateQueries({ queryKey: ['my-cart'] });
     },
     onError: (err: any) => {
-      alert(`❌ Failed to remove from cart: ${err.response?.data?.error || err.message}`);
+      alert(
+        `❌ Failed to remove from cart: ${err.response?.data?.error || err.message}`,
+      );
     },
   });
 
@@ -75,7 +75,9 @@ const MyCartPage = () => {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
         <Loader2 className="animate-spin text-[#16503b]" size={48} />
-        <p className="text-gray-500 font-medium">Loading your shopping cart...</p>
+        <p className="text-gray-500 font-medium">
+          Loading your shopping cart...
+        </p>
       </div>
     );
   }

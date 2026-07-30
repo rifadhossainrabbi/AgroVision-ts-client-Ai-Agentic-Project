@@ -1,14 +1,8 @@
 import axios from 'axios';
-
-const baseURL =
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL
-    : process.env.API_BASE ||
-      process.env.NEXT_PUBLIC_API_BASE ||
-      'http://localhost:5000/api';
+import { API_BASE_URL } from '@/lib/config';
 
 const api = axios.create({
-  baseURL: baseURL?.replace(/\/+$/, ''),
+  baseURL: API_BASE_URL.replace(/\/+$/, ''),
   headers: {
     'Content-Type': 'application/json',
   },
