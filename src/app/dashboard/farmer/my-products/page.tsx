@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { authClient } from '@/lib/auth-client';
 import {
   Edit,
@@ -15,18 +16,20 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import DeleteModal from '@/components/DeleteModal';
 
 const MyProductPage = () => {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
   const [page, setPage] = useState(1);
+  const [productToDelete, setProductToDelete] = useState<any | null>(null);
 
   // ১. TanStack Query: ইউজার ভিত্তিক প্রোডাক্ট ফেচ করা
   const { data, isLoading, isError } = useQuery({
     queryKey: ['my-products', session?.user?.id, page],
     queryFn: async () => {
       const res = await axios.get(
-        `http://localhost:5000/api/my-products/${session?.user?.id}?page=${page}`,
+        `/my-products/${session?.user?.id}?page=${page}`,
       );
       return res.data;
     },
@@ -36,18 +39,25 @@ const MyProductPage = () => {
   // ২. TanStack Mutation: প্রোডাক্ট ডিলিট করা
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      await axios.delete(`/products/${id}`);
     },
     onSuccess: () => {
-      alert('🗑️ Product deleted successfully!');
+      toast.success('Product deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['my-products'] });
+      setProductToDelete(null);
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || 'Failed to delete product');
     },
   });
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      deleteMutation.mutate(id);
-    }
+  const handleDelete = (product: any) => {
+    setProductToDelete(product);
+  };
+
+  const confirmDelete = () => {
+    if (!productToDelete) return;
+    deleteMutation.mutate(productToDelete._id);
   };
 
   if (isLoading)
@@ -109,7 +119,7 @@ const MyProductPage = () => {
                 >
                   <td className="px-6 py-4">
                     <Link
-                      href={`/products/${product._id}`}
+                      href={`/marketplace/${product._id}`}
                       className="flex items-center gap-4 cursor-pointer group/item"
                     >
                       <div className="relative w-12 h-12 rounded-xl overflow-hidden border dark:border-gray-700 shadow-sm">
@@ -143,7 +153,7 @@ const MyProductPage = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2">
                       <Link
                         href={`/dashboard/farmer/edit-product/${product._id}`}
                         className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-500 hover:text-blue-600 transition-all cursor-pointer"
@@ -151,13 +161,13 @@ const MyProductPage = () => {
                         <Edit size={16} />
                       </Link>
                       <button
-                        onClick={() => handleDelete(product._id)}
+                        onClick={() => handleDelete(product)}
                         className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 transition-all cursor-pointer"
                       >
                         <Trash2 size={16} />
                       </button>
                       <Link
-                        href={`/products/${product._id}`}
+                        href={`/marketplace/${product._id}`}
                         className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 text-gray-500 hover:text-green-600 transition-all cursor-pointer"
                       >
                         <ExternalLink size={16} />
@@ -193,6 +203,19 @@ const MyProductPage = () => {
           </div>
         </div>
       </div>
+
+      <DeleteModal
+        isOpen={!!productToDelete}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={confirmDelete}
+        isLoading={deleteMutation.isPending}
+        title="Delete listing"
+        description={
+          productToDelete
+            ? `Remove "${productToDelete.title}" from your inventory? This cannot be undone.`
+            : 'Remove this product from your inventory?'
+        }
+      />
     </div>
   );
 };

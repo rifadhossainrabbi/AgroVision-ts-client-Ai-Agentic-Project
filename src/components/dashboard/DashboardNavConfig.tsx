@@ -12,13 +12,29 @@ import {
   ShoppingBag,
   ClipboardList,
   PlusCircle,
+  UserCircle,
 } from 'lucide-react';
 
-export const DashboardNavConfig = {
+type NavItem = {
+  title: string;
+  href: string;
+  icon: typeof ShieldCheck;
+};
+
+export const DashboardNavConfig: {
+  admin: NavItem[];
+  user: NavItem[];
+  system: NavItem[];
+} = {
   admin: [
     { title: 'Admin Dashboard', href: '/dashboard/admin', icon: ShieldCheck },
     { title: 'Manage Users', href: '/dashboard/admin/users', icon: Users },
-    { title: 'Manage Products', href: '/dashboard/admin/products', icon: Package },
+    {
+      title: 'Manage Products',
+      href: '/dashboard/admin/products',
+      icon: Package,
+    },
+    { title: 'My Profile', href: '/dashboard/profile', icon: UserCircle },
     { title: 'Settings', href: '/dashboard/admin/settings', icon: Settings },
   ],
   user: [
@@ -62,6 +78,11 @@ export const DashboardNavConfig = {
       title: 'Diagnosis History',
       href: '/dashboard/farmer/history',
       icon: History,
+    },
+    {
+      title: 'My Profile',
+      href: '/dashboard/profile',
+      icon: UserCircle,
     },
   ],
   system: [

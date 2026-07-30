@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Search,
 } from 'lucide-react';
+import Link from 'next/link';
 import AuthGuard from '@/components/shared/AuthGuard';
 import DeleteModal from '@/components/DeleteModal';
 
@@ -167,8 +168,12 @@ const AdminManageUsersPage = () => {
                         className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
                       >
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#16503b] text-white flex items-center justify-center font-black text-sm overflow-hidden shrink-0">
+                          <Link
+                            href={`/dashboard/admin/users/${userId}`}
+                            className="flex items-center gap-3 group/user cursor-pointer w-fit"
+                            title="View user's products"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-[#16503b] text-white flex items-center justify-center font-black text-sm overflow-hidden shrink-0 ring-2 ring-transparent group-hover/user:ring-[#16503b] transition-all">
                               {user.image ? (
                                 <img
                                   src={user.image}
@@ -179,10 +184,10 @@ const AdminManageUsersPage = () => {
                                 user.name?.charAt(0) || 'U'
                               )}
                             </div>
-                            <span className="font-bold text-gray-900 dark:text-white">
+                            <span className="font-bold text-gray-900 dark:text-white group-hover/user:text-[#16503b] dark:group-hover/user:text-green-400 group-hover/user:underline transition-colors">
                               {user.name}
                             </span>
-                          </div>
+                          </Link>
                         </td>
                         <td className="px-6 py-4 text-gray-600 dark:text-gray-300 font-medium">
                           {user.email}

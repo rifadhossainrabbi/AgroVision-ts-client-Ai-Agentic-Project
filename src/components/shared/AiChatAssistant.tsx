@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { usePathname, useParams } from 'next/navigation';
-import axios from 'axios';
+import axios from '@/lib/axios';
+import api from '@/lib/api-client';
 import { Bot, Send, X, Sparkles, Loader2 } from 'lucide-react';
 
 type ChatMessage = {
@@ -34,21 +35,27 @@ const AiChatAssistant = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
   }, [messages, loading, open]);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
 
-    const nextHistory: ChatMessage[] = [...messages, { role: 'user', content: trimmed }];
+    const nextHistory: ChatMessage[] = [
+      ...messages,
+      { role: 'user', content: trimmed },
+    ];
     setMessages(nextHistory);
     setInput('');
     setLoading(true);
     setSuggestions([]);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/ai/chat', {
+      const { data } = await axios.post('/ai/chat', {
         message: trimmed,
         history: nextHistory.map(m => ({ role: m.role, content: m.content })),
         context: {
@@ -58,12 +65,18 @@ const AiChatAssistant = () => {
       });
 
       if (data?.success) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+        setMessages(prev => [
+          ...prev,
+          { role: 'assistant', content: data.reply },
+        ]);
         setSuggestions(data.suggestions || DEFAULT_SUGGESTIONS);
       } else {
         setMessages(prev => [
           ...prev,
-          { role: 'assistant', content: "Sorry, I couldn't process that right now." },
+          {
+            role: 'assistant',
+            content: "Sorry, I couldn't process that right now.",
+          },
         ]);
       }
     } catch {
@@ -71,7 +84,8 @@ const AiChatAssistant = () => {
         ...prev,
         {
           role: 'assistant',
-          content: 'The assistant is temporarily unavailable. Please try again shortly.',
+          content:
+            'The assistant is temporarily unavailable. Please try again shortly.',
         },
       ]);
     } finally {
@@ -99,7 +113,9 @@ const AiChatAssistant = () => {
               <Bot size={18} />
             </div>
             <div>
-              <p className="text-sm font-bold leading-tight">AgroBot Assistant</p>
+              <p className="text-sm font-bold leading-tight">
+                AgroBot Assistant
+              </p>
               <p className="text-[10px] text-white/70 leading-tight">
                 Context-aware · Always here to help
               </p>
@@ -171,7 +187,11 @@ const AiChatAssistant = () => {
               disabled={loading || !input.trim()}
               className="w-10 h-10 flex-shrink-0 rounded-full bg-[#16503b] text-white flex items-center justify-center disabled:opacity-50 cursor-pointer"
             >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+              {loading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Send size={16} />
+              )}
             </button>
           </form>
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { authClient } from '@/lib/auth-client';
 import { Eye, EyeOff, Info, Rocket } from 'lucide-react';
 
@@ -24,10 +25,16 @@ const LoginPage = () => {
         onRequest: () => setLoading(true),
         onResponse: () => setLoading(false),
         onError: ctx => {
-          alert(ctx.error.message); // এরর মেসেজ দেখানোর জন্য
+          toast.error(ctx.error.message || 'Login failed');
         },
       },
     );
+  };
+
+  const handleDemoLogin = () => {
+    setEmail('demo@agrovision.ai');
+    setPassword('Demo@1234');
+    toast.success('Demo credentials filled in');
   };
 
   // গুগল দিয়ে লগইন করার লজিক
@@ -41,7 +48,7 @@ const LoginPage = () => {
         onRequest: () => setLoading(true),
         onResponse: () => setLoading(false),
         onError: ctx => {
-          alert(ctx.error.message);
+          toast.error(ctx.error.message || 'Google login failed');
         },
       },
     );
@@ -150,6 +157,7 @@ const LoginPage = () => {
           </button>
           <button
             type="button"
+            onClick={handleDemoLogin}
             className="flex items-center justify-center gap-2 border border-gray-200 dark:border-gray-800 dark:text-white py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all font-semibold text-sm cursor-pointer active:scale-95"
           >
             <Rocket size={18} className="text-gray-500" /> Demo Login

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { authClient } from '@/lib/auth-client';
 import {
   Check,
@@ -17,6 +18,7 @@ const RegisterPage = () => {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form State
   const [formData, setFormData] = useState({
@@ -35,12 +37,44 @@ const RegisterPage = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const validateForm = () => {
+    const nextErrors: Record<string, string> = {};
+    if (!formData.name.trim()) nextErrors.name = 'Full name is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      nextErrors.email = 'Enter a valid email address';
+    }
+    if (formData.phone && !/^\+?[0-9\s-]{7,15}$/.test(formData.phone)) {
+      nextErrors.phone = 'Enter a valid phone number';
+    }
+    if (formData.farmSize && Number(formData.farmSize) <= 0) {
+      nextErrors.farmSize = 'Farm size must be greater than zero';
+    }
+    if (formData.password.length < 8) {
+      nextErrors.password = 'Password must be at least 8 characters';
+    } else if (!/[A-Z]/.test(formData.password)) {
+      nextErrors.password = 'Add at least one uppercase letter';
+    } else if (!/[0-9]/.test(formData.password)) {
+      nextErrors.password = 'Add at least one number';
+    } else if (!/[^A-Za-z0-9]/.test(formData.password)) {
+      nextErrors.password = 'Add at least one special character';
+    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
   // 1. Email Sign Up Logic
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error('Please fix the highlighted fields and try again');
+      return;
+    }
 
     await authClient.signUp.email(
       {
@@ -57,7 +91,7 @@ const RegisterPage = () => {
         },
         onError: ctx => {
           setLoading(false);
-          alert(ctx.error.message);
+          toast.error(ctx.error.message || 'Registration failed');
         },
       },
     );
@@ -115,6 +149,7 @@ const RegisterPage = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              error={errors.name}
             />
             <InputGroup
               label="Email Address"
@@ -124,6 +159,7 @@ const RegisterPage = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              error={errors.email}
             />
             <InputGroup
               label="Phone Number"
@@ -131,6 +167,7 @@ const RegisterPage = () => {
               placeholder="+1 (555) 000-0000"
               value={formData.phone}
               onChange={handleChange}
+              error={errors.phone}
             />
             <InputGroup
               label="Farm Name"
@@ -167,6 +204,7 @@ const RegisterPage = () => {
               type="number"
               value={formData.farmSize}
               onChange={handleChange}
+              error={errors.farmSize}
             />
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -200,6 +238,9 @@ const RegisterPage = () => {
                 placeholder="••••••••"
                 required
               />
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-500">{errors.password}</p>
+              )}
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
@@ -308,6 +349,7 @@ const InputGroup = ({
   value,
   onChange,
   required = false,
+  error,
 }: any) => (
   <div className="space-y-1.5 w-full">
     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors tracking-tight">
@@ -320,8 +362,9 @@ const InputGroup = ({
       value={value}
       onChange={onChange}
       required={required}
-      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:border-[#16503b] transition-all cursor-text shadow-sm"
+      className={`w-full px-4 py-2.5 rounded-xl border ${error ? 'border-red-400' : 'border-gray-200 dark:border-gray-700'} bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:border-[#16503b] transition-all cursor-text shadow-sm`}
     />
+    {error ? <p className="mt-1 text-sm text-red-500">{error}</p> : null}
   </div>
 );
 

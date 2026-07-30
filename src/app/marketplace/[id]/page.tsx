@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import axios from 'axios';
+import api from '@/lib/api-client';
 import {
   Star,
   StarHalf,
@@ -24,7 +24,7 @@ import { authClient } from '@/lib/auth-client';
 import AuthGuard from '@/components/shared/AuthGuard';
 import toast from 'react-hot-toast';
 
-const API_BASE = 'http://localhost:5000/api';
+// use shared api client
 
 // Types
 interface Product {
@@ -767,7 +767,10 @@ const ProductDetailsPage = () => {
                   </h3>
                   <div className="bg-white dark:bg-[#0b1120] p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                     <div className="flex items-start gap-6 flex-wrap">
-                      <div className="w-20 h-20 rounded-full bg-[#16503b] flex items-center justify-center text-white font-black text-2xl overflow-hidden shrink-0">
+                      <Link
+                        href={`/seller/${(product as any)?.userId || product?.seller?.email || productId}`}
+                        className="w-20 h-20 rounded-full bg-[#16503b] flex items-center justify-center text-white font-black text-2xl overflow-hidden shrink-0"
+                      >
                         {fallback.seller.image ? (
                           <img
                             src={fallback.seller.image}
@@ -777,7 +780,7 @@ const ProductDetailsPage = () => {
                         ) : (
                           fallback.seller.name.charAt(0)
                         )}
-                      </div>
+                      </Link>
                       <div className="flex-1">
                         <div className="flex items-center gap-3 flex-wrap">
                           <h4 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -798,18 +801,22 @@ const ProductDetailsPage = () => {
                             </span>
                           )}
                         </div>
-                        {fallback.seller.email ? (
-                          <a
-                            href={`mailto:${fallback.seller.email}`}
-                            className="mt-4 inline-flex px-6 py-3 bg-[#16503b] text-white rounded-xl text-sm font-bold hover:bg-[#1a6b4f] transition-colors items-center gap-2"
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          <Link
+                            href={`/seller/${(product as any)?.userId || product?.seller?.email || productId}`}
+                            className="inline-flex items-center gap-2 rounded-xl bg-[#16503b] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#1a6b4f]"
                           >
-                            <MessageCircle size={16} /> Contact Seller
-                          </a>
-                        ) : (
-                          <button className="mt-4 px-6 py-3 bg-[#16503b] text-white rounded-xl text-sm font-bold hover:bg-[#1a6b4f] transition-colors flex items-center gap-2">
-                            <MessageCircle size={16} /> Contact Seller
-                          </button>
-                        )}
+                            <MessageCircle size={16} /> View Seller Profile
+                          </Link>
+                          {fallback.seller.email ? (
+                            <a
+                              href={`mailto:${fallback.seller.email}`}
+                              className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-6 py-3 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                            >
+                              <MessageCircle size={16} /> Contact Seller
+                            </a>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   </div>

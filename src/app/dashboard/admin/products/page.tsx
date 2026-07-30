@@ -14,6 +14,7 @@ import {
   Filter,
   Loader2,
   Eye,
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import AuthGuard from '@/components/shared/AuthGuard';
@@ -32,6 +33,7 @@ interface ProductItem {
   status: 'active' | 'pending' | 'rejected';
   sellerName?: string;
   createdAt?: string;
+  isFeatured?: boolean;
 }
 
 const AdminManageProductsPage = () => {
@@ -59,6 +61,48 @@ const AdminManageProductsPage = () => {
   });
 
   const products: ProductItem[] = data?.products || [];
+
+  // Fetch currently featured products (home page section, max 6)
+  const { data: featuredData } = useQuery({
+    queryKey: ['featured-products'],
+    queryFn: async () => {
+      const res = await axios.get(`${API_BASE}/products/featured`);
+      return res.data;
+    },
+  });
+  const featuredCount = featuredData?.products?.length || 0;
+
+  // Toggle Featured Mutation (Home Page Featured Section, Max 6)
+  const featureMutation = useMutation({
+    mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
+      const res = await axios.patch(`${API_BASE}/admin/products/${id}/feature`, {
+        featured,
+      });
+      return res.data;
+    },
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.featured
+          ? 'Added to Home Page Featured section!'
+          : 'Removed from Featured section',
+      );
+      setActionId(null);
+      queryClient.invalidateQueries({ queryKey: ['admin-products-list'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-products'] });
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.response?.data?.error ||
+          `Failed to update featured status: ${err.message}`,
+      );
+      setActionId(null);
+    },
+  });
+
+  const handleToggleFeatured = (id: string, current: boolean) => {
+    setActionId(id);
+    featureMutation.mutate({ id, featured: !current });
+  };
 
   // Update Product Status Mutation (Approve / Reject)
   const statusMutation = useMutation({
@@ -153,8 +197,14 @@ const AdminManageProductsPage = () => {
               delete invalid items.
             </p>
           </div>
-          <div className="bg-white/10 px-4 py-2 rounded-2xl backdrop-blur-md font-bold text-sm">
-            Total Listings: {data?.totalProducts || products.length}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="bg-white/10 px-4 py-2 rounded-2xl backdrop-blur-md font-bold text-sm">
+              Total Listings: {data?.totalProducts || products.length}
+            </div>
+            <div className="bg-white/10 px-4 py-2 rounded-2xl backdrop-blur-md font-bold text-sm flex items-center gap-2">
+              <Star size={14} className="text-amber-300" fill="currentColor" />
+              Featured on Home: {featuredCount}/6
+            </div>
           </div>
         </div>
 
@@ -217,6 +267,7 @@ const AdminManageProductsPage = () => {
                     <th className="px-6 py-4">Category</th>
                     <th className="px-6 py-4">Price</th>
                     <th className="px-6 py-4">Current Status</th>
+                    <th className="px-6 py-4 text-center">Featured</th>
                     <th className="px-6 py-4 text-center">Approval Actions</th>
                     <th className="px-6 py-4 text-right">Delete</th>
                   </tr>
@@ -230,14 +281,18 @@ const AdminManageProductsPage = () => {
                         className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
                       >
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
+                          <Link
+                            href={`/marketplace/${product._id}`}
+                            className="flex items-center gap-3 group/item cursor-pointer w-fit"
+                            title="View product details"
+                          >
                             <img
                               src={product.mainImage}
                               alt={product.title}
-                              className="w-12 h-12 rounded-xl object-cover border border-gray-100 dark:border-gray-800 shrink-0"
+                              className="w-12 h-12 rounded-xl object-cover border border-gray-100 dark:border-gray-800 shrink-0 group-hover/item:ring-2 group-hover/item:ring-[#16503b] transition-all"
                             />
                             <div>
-                              <p className="font-bold text-gray-900 dark:text-white truncate max-w-[220px]">
+                              <p className="font-bold text-gray-900 dark:text-white truncate max-w-[220px] group-hover/item:text-[#16503b] dark:group-hover/item:text-green-400 group-hover/item:underline transition-colors">
                                 {product.title}
                               </p>
                               <span className="text-[10px] font-semibold text-gray-400">
@@ -245,7 +300,7 @@ const AdminManageProductsPage = () => {
                                 {product.sellerName || 'AgroVision Member'}
                               </span>
                             </div>
-                          </div>
+                          </Link>
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">
                           {product.category}
@@ -276,6 +331,49 @@ const AdminManageProductsPage = () => {
                               ? 'Approved'
                               : product.status}
                           </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-center">
+                            <button
+                              onClick={() =>
+                                handleToggleFeatured(
+                                  product._id,
+                                  !!product.isFeatured,
+                                )
+                              }
+                              disabled={
+                                isBusy ||
+                                (!product.isFeatured &&
+                                  featuredCount >= 6) ||
+                                product.status !== 'active'
+                              }
+                              title={
+                                product.status !== 'active'
+                                  ? 'Only approved/active products can be featured'
+                                  : product.isFeatured
+                                    ? 'Remove from Home Page Featured section'
+                                    : featuredCount >= 6
+                                      ? 'Maximum 6 featured products reached'
+                                      : 'Add to Home Page Featured section'
+                              }
+                              className={`p-2 rounded-xl transition-all disabled:opacity-30 cursor-pointer ${
+                                product.isFeatured
+                                  ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                                  : 'text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-600'
+                              }`}
+                            >
+                              {isBusy && featureMutation.isPending ? (
+                                <Loader2 size={18} className="animate-spin" />
+                              ) : (
+                                <Star
+                                  size={18}
+                                  fill={
+                                    product.isFeatured ? 'currentColor' : 'none'
+                                  }
+                                />
+                              )}
+                            </button>
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-center gap-2">

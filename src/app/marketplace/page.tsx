@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import axios from '@/lib/axios';
 import {
   Search,
   Filter,
@@ -62,7 +62,7 @@ const MarketPlacePage = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['marketplace', searchTerm, productType, category, sortBy, page],
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:5000/api/products/all`, {
+      const res = await api.get(`/products/all`, {
         params: {
           search: searchTerm || undefined,
           type: productType === 'All' ? undefined : productType,

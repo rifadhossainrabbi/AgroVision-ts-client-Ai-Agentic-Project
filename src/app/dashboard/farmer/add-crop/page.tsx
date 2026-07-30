@@ -105,7 +105,7 @@ const AddCropPage = () => {
   const aiDescriptionMutation = useMutation({
     mutationFn: async () => {
       return (
-        await axios.post('http://localhost:5000/api/ai/generate-description', {
+        await axios.post('/ai/generate-description', {
           title: formData.title,
           category: formData.category,
           productType,
@@ -128,12 +128,16 @@ const AddCropPage = () => {
       }
     },
     onError: (err: any) =>
-      alert(`❌ AI GENERATION FAILED: ${err.response?.data?.error || err.message}`),
+      alert(
+        `❌ AI GENERATION FAILED: ${err.response?.data?.error || err.message}`,
+      ),
   });
 
   const handleGenerateDescription = () => {
     if (!formData.title || !formData.category) {
-      return alert('⚠️ ADD A TITLE AND CATEGORY FIRST SO THE AI KNOWS WHAT TO WRITE');
+      return alert(
+        '⚠️ ADD A TITLE AND CATEGORY FIRST SO THE AI KNOWS WHAT TO WRITE',
+      );
     }
     aiDescriptionMutation.mutate();
   };
@@ -153,9 +157,7 @@ const AddCropPage = () => {
 
   const publishMutation = useMutation({
     mutationFn: async (payload: any) => {
-      return (
-        await axios.post('http://localhost:5000/api/products/add', payload)
-      ).data;
+      return (await axios.post('/products/add', payload)).data;
     },
     onSuccess: () => {
       alert('✅ LISTING PUBLISHED SUCCESSFULLY!');
@@ -579,12 +581,15 @@ const AddCropPage = () => {
                 >
                   {aiDescriptionMutation.isPending ? (
                     <>
-                      <Loader2 size={14} className="animate-spin" /> Generating...
+                      <Loader2 size={14} className="animate-spin" />{' '}
+                      Generating...
                     </>
                   ) : (
                     <>
                       <Sparkles size={14} />
-                      {formData.description ? 'Regenerate with AI' : 'Generate with AI'}
+                      {formData.description
+                        ? 'Regenerate with AI'
+                        : 'Generate with AI'}
                     </>
                   )}
                 </button>
