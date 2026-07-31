@@ -41,6 +41,16 @@ const Navbar = () => {
     ? NavbarNavConfig[role] || NavbarNavConfig.public
     : NavbarNavConfig.public;
 
+  // মোবাইলের জন্য: শুধু পাবলিক আইটেম + রোল-ভিত্তিক নাভবার আইটেম দেখাবে
+  // (ড্যাশবোর্ড সাইডবারের আইটেমগুলো এখন মোবাইলে ড্যাশবোর্ডের উপরে আলাদা টপ-বারে দেখানো হয়)
+  // ডেস্কটপ navItems অপরিবর্তিত থাকবে
+  const mobileNavItems: NavItem[] = session
+    ? [...NavbarNavConfig.public, ...(NavbarNavConfig[role] || [])].filter(
+        (item, index, arr) =>
+          arr.findIndex(i => i.href === item.href) === index,
+      )
+    : NavbarNavConfig.public;
+
   useEffect(() => {
     setMounted(true);
     const handleClickOutside = (event: MouseEvent) => {
@@ -246,7 +256,7 @@ const Navbar = () => {
 
             {/* Navigation Links */}
             <div className="flex flex-col space-y-2">
-              {navItems.map(item => (
+              {mobileNavItems.map(item => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -264,24 +274,12 @@ const Navbar = () => {
             {/* Bottom Actions */}
             <div className="mt-auto pt-6 border-t dark:border-gray-800 space-y-3">
               {session ? (
-                <>
-                  <Link
-                    href={
-                      role === 'admin'
-                        ? '/dashboard/admin'
-                        : '/dashboard/farmer'
-                    }
-                    className="flex items-center gap-3 p-3 text-sm font-medium text-gray-600 dark:text-gray-300"
-                  >
-                    <LayoutDashboard size={18} /> Dashboard
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 p-3 text-sm font-bold text-red-600 bg-red-50 dark:bg-red-900/10 rounded-xl"
-                  >
-                    <LogOut size={18} /> Logout
-                  </button>
-                </>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 p-3 text-sm font-bold text-red-600 bg-red-50 dark:bg-red-900/10 rounded-xl"
+                >
+                  <LogOut size={18} /> Logout
+                </button>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                   <Link

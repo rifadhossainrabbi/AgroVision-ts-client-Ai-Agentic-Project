@@ -110,7 +110,76 @@ const MyCartPage = () => {
 
       {/* Table Container */}
       <div className="bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm transition-colors mb-8">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
+          {cartItems.length > 0 ? (
+            cartItems.map(item => (
+              <div key={item.productId} className="p-4 flex flex-col gap-3">
+                <Link
+                  href={`/marketplace/${item.productId}`}
+                  className="flex items-center gap-3"
+                >
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden border dark:border-gray-700 shadow-sm shrink-0 bg-gray-100 dark:bg-gray-800">
+                    <img
+                      src={item.mainImage || '/placeholder.png'}
+                      alt={item.productTitle}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
+                    {item.productTitle}
+                  </span>
+                </Link>
+
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-xs font-bold px-3 py-1 bg-green-50 dark:bg-green-900/20 text-[#16503b] dark:text-green-400 rounded-full border border-green-100 dark:border-green-800/30">
+                    {item.category || 'General'}
+                  </span>
+                  <span className="font-black text-gray-900 dark:text-gray-100 text-sm">
+                    ${Number(item.price).toFixed(2)}
+                    <span className="text-[10px] text-gray-400 font-medium ml-1">
+                      / {item.unit || 'unit'}
+                    </span>
+                  </span>
+                </div>
+
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Added: {new Date(item.addedAt).toLocaleDateString()}
+                </p>
+
+                <div className="flex gap-2 pt-1">
+                  <Link
+                    href={`/marketplace/${item.productId}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500 hover:text-green-600 transition-all cursor-pointer text-xs font-bold"
+                  >
+                    <ExternalLink size={16} /> View
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteClick(item.productId)}
+                    className="flex-1 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <Trash2 size={15} /> Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-6 py-12 text-center">
+              <p className="text-gray-400 font-bold text-sm">
+                Your cart is empty.
+              </p>
+              <Link
+                href="/marketplace"
+                className="mt-3 inline-block text-xs font-black text-[#16503b] hover:underline uppercase tracking-wider"
+              >
+                Browse Marketplace & Add Items
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
               <tr>

@@ -684,8 +684,8 @@ const ProductDetailsPage = () => {
                   </h3>
                   {product.specifications &&
                   Object.keys(product.specifications).length > 0 ? (
-                    <div className="bg-white dark:bg-[#0b1120] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
-                      <table className="w-full">
+                    <div className="bg-white dark:bg-[#0b1120] rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 overflow-x-auto">
+                      <table className="w-full min-w-[420px]">
                         <tbody>
                           {Object.entries(product.specifications).map(
                             ([key, value], idx) => (

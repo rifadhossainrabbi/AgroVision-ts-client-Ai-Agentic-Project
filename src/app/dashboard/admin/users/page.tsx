@@ -149,92 +149,168 @@ const AdminManageUsersPage = () => {
               Failed to load users directory.
             </div>
           ) : filteredUsers.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1e293b]/50 text-[10px] font-black uppercase text-gray-400 tracking-wider">
-                    <th className="px-6 py-4">User Details</th>
-                    <th className="px-6 py-4">Email Address</th>
-                    <th className="px-6 py-4">Account Role</th>
-                    <th className="px-6 py-4">Joined Date</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
-                  {filteredUsers.map(user => {
-                    const userId = user.id || user._id;
-                    const isDeleting = deletingId === userId;
-                    return (
-                      <tr
-                        key={userId}
-                        className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <Link
-                            href={`/dashboard/admin/users/${userId}`}
-                            className="flex items-center gap-3 group/user cursor-pointer w-fit"
-                            title="View user's products"
-                          >
-                            <div className="w-10 h-10 rounded-full bg-[#16503b] text-white flex items-center justify-center font-black text-sm overflow-hidden shrink-0 ring-2 ring-transparent group-hover/user:ring-[#16503b] transition-all">
-                              {user.image ? (
-                                <img
-                                  src={user.image}
-                                  alt={user.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                user.name?.charAt(0) || 'U'
-                              )}
-                            </div>
-                            <span className="font-bold text-gray-900 dark:text-white group-hover/user:text-[#16503b] dark:group-hover/user:text-green-400 group-hover/user:underline transition-colors">
-                              {user.name}
-                            </span>
-                          </Link>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 dark:text-gray-300 font-medium">
-                          {user.email}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-3 py-1 rounded-full ${
-                              user.role === 'admin'
-                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
-                                : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                            }`}
-                          >
-                            {user.role === 'admin' ? (
-                              <Shield size={12} />
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+                {filteredUsers.map(user => {
+                  const userId = user.id || user._id;
+                  const isDeleting = deletingId === userId;
+                  return (
+                    <div key={userId} className="p-4 flex flex-col gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <Link
+                          href={`/dashboard/admin/users/${userId}`}
+                          className="flex items-center gap-3 min-w-0"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-[#16503b] text-white flex items-center justify-center font-black text-sm overflow-hidden shrink-0">
+                            {user.image ? (
+                              <img
+                                src={user.image}
+                                alt={user.name}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
-                              <User size={12} />
+                              user.name?.charAt(0) || 'U'
                             )}
-                            {user.role || 'user'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-400 text-xs font-semibold">
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-900 dark:text-white truncate">
+                              {user.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteUser(userId, user.name)}
+                          disabled={isDeleting}
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                          title="Delete User & Cascading Data"
+                        >
+                          {isDeleting ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-3 py-1 rounded-full ${
+                            user.role === 'admin'
+                              ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
+                              : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                          }`}
+                        >
+                          {user.role === 'admin' ? (
+                            <Shield size={12} />
+                          ) : (
+                            <User size={12} />
+                          )}
+                          {user.role || 'user'}
+                        </span>
+                        <span className="text-gray-400 text-xs font-semibold">
                           {user.createdAt
                             ? new Date(user.createdAt).toLocaleDateString()
                             : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleDeleteUser(userId, user.name)}
-                            disabled={isDeleting}
-                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
-                            title="Delete User & Cascading Data"
-                          >
-                            {isDeleting ? (
-                              <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                              <Trash2 size={18} />
-                            )}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1e293b]/50 text-[10px] font-black uppercase text-gray-400 tracking-wider">
+                      <th className="px-6 py-4">User Details</th>
+                      <th className="px-6 py-4">Email Address</th>
+                      <th className="px-6 py-4">Account Role</th>
+                      <th className="px-6 py-4">Joined Date</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+                    {filteredUsers.map(user => {
+                      const userId = user.id || user._id;
+                      const isDeleting = deletingId === userId;
+                      return (
+                        <tr
+                          key={userId}
+                          className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <Link
+                              href={`/dashboard/admin/users/${userId}`}
+                              className="flex items-center gap-3 group/user cursor-pointer w-fit"
+                              title="View user's products"
+                            >
+                              <div className="w-10 h-10 rounded-full bg-[#16503b] text-white flex items-center justify-center font-black text-sm overflow-hidden shrink-0 ring-2 ring-transparent group-hover/user:ring-[#16503b] transition-all">
+                                {user.image ? (
+                                  <img
+                                    src={user.image}
+                                    alt={user.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  user.name?.charAt(0) || 'U'
+                                )}
+                              </div>
+                              <span className="font-bold text-gray-900 dark:text-white group-hover/user:text-[#16503b] dark:group-hover/user:text-green-400 group-hover/user:underline transition-colors">
+                                {user.name}
+                              </span>
+                            </Link>
+                          </td>
+                          <td className="px-6 py-4 text-gray-600 dark:text-gray-300 font-medium">
+                            {user.email}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-3 py-1 rounded-full ${
+                                user.role === 'admin'
+                                  ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
+                                  : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                              }`}
+                            >
+                              {user.role === 'admin' ? (
+                                <Shield size={12} />
+                              ) : (
+                                <User size={12} />
+                              )}
+                              {user.role || 'user'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-gray-400 text-xs font-semibold">
+                            {user.createdAt
+                              ? new Date(user.createdAt).toLocaleDateString()
+                              : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() =>
+                                handleDeleteUser(userId, user.name)
+                              }
+                              disabled={isDeleting}
+                              className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
+                              title="Delete User & Cascading Data"
+                            >
+                              {isDeleting ? (
+                                <Loader2 size={18} className="animate-spin" />
+                              ) : (
+                                <Trash2 size={18} />
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : (
             <div className="p-12 text-center text-gray-400 font-bold text-sm">
               No matching users found.

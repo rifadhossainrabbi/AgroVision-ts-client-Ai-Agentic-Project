@@ -90,7 +90,69 @@ const MyProductPage = () => {
 
       {/* Table Container */}
       <div className="bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm transition-colors">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
+          {data?.products?.map((product: any) => (
+            <div key={product._id} className="p-4 flex flex-col gap-3">
+              <Link
+                href={`/marketplace/${product._id}`}
+                className="flex items-center gap-3"
+              >
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden border dark:border-gray-700 shadow-sm shrink-0">
+                  <img
+                    src={product.mainImage}
+                    alt={product.title}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
+                  {product.title}
+                </span>
+              </Link>
+
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs font-bold px-3 py-1 bg-green-50 dark:bg-green-900/20 text-[#16503b] dark:text-green-400 rounded-full">
+                  {product.category}
+                </span>
+                <span className="font-black text-gray-900 dark:text-gray-100 text-sm">
+                  ${product.price.toFixed(2)}
+                </span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${product.status === 'active' ? 'bg-green-500' : 'bg-orange-400'} animate-pulse`}
+                  />
+                  <span className="text-xs font-medium capitalize">
+                    {product.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <Link
+                  href={`/dashboard/farmer/edit-product/${product._id}`}
+                  className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-500 hover:text-blue-600 transition-all cursor-pointer text-xs font-bold"
+                >
+                  <Edit size={16} /> Edit
+                </Link>
+                <button
+                  onClick={() => handleDelete(product)}
+                  className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 transition-all cursor-pointer text-xs font-bold"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+                <Link
+                  href={`/marketplace/${product._id}`}
+                  className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/30 text-gray-500 hover:text-green-600 transition-all cursor-pointer text-xs font-bold"
+                >
+                  <ExternalLink size={16} /> View
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
               <tr>

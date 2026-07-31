@@ -19,7 +19,7 @@ export default async function DashboardLayout({
 
   return (
     <AuthGuard>
-      <div className="flex bg-[#f8faf9] dark:bg-gray-950 min-h-screen">
+      <div className="flex flex-col md:flex-row bg-[#f8faf9] dark:bg-gray-950 min-h-screen">
         <DashboardSidebar role={role} />
         <div className="flex-1 flex flex-col overflow-x-hidden">
           <main className="p-4 sm:p-6 lg:p-8 flex-1">{children}</main>

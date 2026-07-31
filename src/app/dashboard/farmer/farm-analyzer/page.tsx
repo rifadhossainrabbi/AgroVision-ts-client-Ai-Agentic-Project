@@ -184,7 +184,7 @@ const FarmAnalyzerPage = () => {
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Soil Type *">
               <select
                 value={form.soilType}
@@ -209,7 +209,7 @@ const FarmAnalyzerPage = () => {
             </Field>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Land Size *">
               <input
                 type="number"
@@ -265,7 +265,7 @@ const FarmAnalyzerPage = () => {
             </select>
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Farming Type">
               <select
                 value={form.farmingType}

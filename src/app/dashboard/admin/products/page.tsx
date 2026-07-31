@@ -259,186 +259,357 @@ const AdminManageProductsPage = () => {
               Failed to load products list.
             </div>
           ) : products.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1e293b]/50 text-[10px] font-black uppercase text-gray-400 tracking-wider">
-                    <th className="px-6 py-4">Item Info</th>
-                    <th className="px-6 py-4">Category</th>
-                    <th className="px-6 py-4">Price</th>
-                    <th className="px-6 py-4">Current Status</th>
-                    <th className="px-6 py-4 text-center">Featured</th>
-                    <th className="px-6 py-4 text-center">Approval Actions</th>
-                    <th className="px-6 py-4 text-right">Delete</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
-                  {products.map(product => {
-                    const isBusy = actionId === product._id;
-                    return (
-                      <tr
-                        key={product._id}
-                        className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <Link
-                            href={`/marketplace/${product._id}`}
-                            className="flex items-center gap-3 group/item cursor-pointer w-fit"
-                            title="View product details"
-                          >
-                            <img
-                              src={product.mainImage}
-                              alt={product.title}
-                              className="w-12 h-12 rounded-xl object-cover border border-gray-100 dark:border-gray-800 shrink-0 group-hover/item:ring-2 group-hover/item:ring-[#16503b] transition-all"
-                            />
-                            <div>
-                              <p className="font-bold text-gray-900 dark:text-white truncate max-w-[220px] group-hover/item:text-[#16503b] dark:group-hover/item:text-green-400 group-hover/item:underline transition-colors">
-                                {product.title}
-                              </p>
-                              <span className="text-[10px] font-semibold text-gray-400">
-                                Seller:{' '}
-                                {product.sellerName || 'AgroVision Member'}
-                              </span>
-                            </div>
-                          </Link>
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">
-                          {product.category}
-                        </td>
-                        <td className="px-6 py-4 font-black text-[#16503b] dark:text-green-500">
+            <>
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
+                {products.map(product => {
+                  const isBusy = actionId === product._id;
+                  return (
+                    <div key={product._id} className="p-4 flex flex-col gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <Link
+                          href={`/marketplace/${product._id}`}
+                          className="flex items-center gap-3 min-w-0"
+                        >
+                          <img
+                            src={product.mainImage}
+                            alt={product.title}
+                            className="w-12 h-12 rounded-xl object-cover border border-gray-100 dark:border-gray-800 shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-900 dark:text-white truncate">
+                              {product.title}
+                            </p>
+                            <span className="text-[10px] font-semibold text-gray-400">
+                              Seller:{' '}
+                              {product.sellerName || 'AgroVision Member'}
+                            </span>
+                          </div>
+                        </Link>
+                        <button
+                          onClick={() =>
+                            handleDeleteProduct(product._id, product.title)
+                          }
+                          disabled={isBusy}
+                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                          title="Delete Product & Cascading Data"
+                        >
+                          {isBusy ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <span className="font-black text-[#16503b] dark:text-green-500 text-sm">
                           ${Number(product.price).toFixed(2)} / {product.unit}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full ${
-                              product.status === 'active'
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                                : product.status === 'pending'
-                                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
-                                  : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-                            }`}
-                          >
-                            {product.status === 'active' && (
-                              <CheckCircle size={12} />
-                            )}
-                            {product.status === 'pending' && (
-                              <Clock size={12} />
-                            )}
-                            {product.status === 'rejected' && (
-                              <XCircle size={12} />
-                            )}
-                            {product.status === 'active'
-                              ? 'Approved'
-                              : product.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex justify-center">
+                        </span>
+                        <span className="font-semibold text-xs text-gray-700 dark:text-gray-300">
+                          {product.category}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full ${
+                            product.status === 'active'
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                              : product.status === 'pending'
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
+                                : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                          }`}
+                        >
+                          {product.status === 'active' && (
+                            <CheckCircle size={12} />
+                          )}
+                          {product.status === 'pending' && <Clock size={12} />}
+                          {product.status === 'rejected' && (
+                            <XCircle size={12} />
+                          )}
+                          {product.status === 'active'
+                            ? 'Approved'
+                            : product.status}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-1">
+                        <button
+                          onClick={() =>
+                            handleToggleFeatured(
+                              product._id,
+                              !!product.isFeatured,
+                            )
+                          }
+                          disabled={
+                            isBusy ||
+                            (!product.isFeatured && featuredCount >= 6) ||
+                            product.status !== 'active'
+                          }
+                          title={
+                            product.status !== 'active'
+                              ? 'Only approved/active products can be featured'
+                              : product.isFeatured
+                                ? 'Remove from Home Page Featured section'
+                                : featuredCount >= 6
+                                  ? 'Maximum 6 featured products reached'
+                                  : 'Add to Home Page Featured section'
+                          }
+                          className={`p-2 rounded-xl transition-all disabled:opacity-30 cursor-pointer ${
+                            product.isFeatured
+                              ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                              : 'text-gray-300 bg-gray-50 dark:bg-gray-800 dark:text-gray-600'
+                          }`}
+                        >
+                          {isBusy && featureMutation.isPending ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : (
+                            <Star
+                              size={18}
+                              fill={
+                                product.isFeatured ? 'currentColor' : 'none'
+                              }
+                            />
+                          )}
+                        </button>
+
+                        <div className="flex items-center gap-2">
+                          {product.status !== 'active' && (
                             <button
                               onClick={() =>
-                                handleToggleFeatured(
-                                  product._id,
-                                  !!product.isFeatured,
-                                )
+                                handleStatusChange(product._id, 'active')
                               }
-                              disabled={
-                                isBusy ||
-                                (!product.isFeatured && featuredCount >= 6) ||
-                                product.status !== 'active'
-                              }
-                              title={
-                                product.status !== 'active'
-                                  ? 'Only approved/active products can be featured'
-                                  : product.isFeatured
-                                    ? 'Remove from Home Page Featured section'
-                                    : featuredCount >= 6
-                                      ? 'Maximum 6 featured products reached'
-                                      : 'Add to Home Page Featured section'
-                              }
-                              className={`p-2 rounded-xl transition-all disabled:opacity-30 cursor-pointer ${
-                                product.isFeatured
-                                  ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
-                                  : 'text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-600'
-                              }`}
+                              disabled={isBusy}
+                              className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
                             >
-                              {isBusy && featureMutation.isPending ? (
-                                <Loader2 size={18} className="animate-spin" />
+                              {isBusy ? (
+                                <Loader2 size={12} className="animate-spin" />
                               ) : (
-                                <Star
-                                  size={18}
-                                  fill={
-                                    product.isFeatured ? 'currentColor' : 'none'
-                                  }
-                                />
+                                <CheckCircle size={12} />
                               )}
+                              Approve
                             </button>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center justify-center gap-2">
-                            {product.status !== 'active' && (
-                              <button
-                                onClick={() =>
-                                  handleStatusChange(product._id, 'active')
-                                }
-                                disabled={isBusy}
-                                className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
-                              >
-                                {isBusy ? (
-                                  <Loader2 size={12} className="animate-spin" />
-                                ) : (
-                                  <CheckCircle size={12} />
-                                )}
-                                Approve
-                              </button>
-                            )}
-                            {product.status === 'active' && (
-                              <button
-                                onClick={() =>
-                                  handleStatusChange(product._id, 'pending')
-                                }
-                                disabled={isBusy}
-                                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
-                              >
-                                {isBusy ? (
-                                  <Loader2 size={12} className="animate-spin" />
-                                ) : (
-                                  <XCircle size={12} />
-                                )}
-                                Reject
-                              </button>
-                            )}
+                          )}
+                          {product.status === 'active' && (
+                            <button
+                              onClick={() =>
+                                handleStatusChange(product._id, 'pending')
+                              }
+                              disabled={isBusy}
+                              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
+                            >
+                              {isBusy ? (
+                                <Loader2 size={12} className="animate-spin" />
+                              ) : (
+                                <XCircle size={12} />
+                              )}
+                              Reject
+                            </button>
+                          )}
+                          <Link
+                            href={`/marketplace/${product._id}`}
+                            className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <Eye size={16} />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-[#1e293b]/50 text-[10px] font-black uppercase text-gray-400 tracking-wider">
+                      <th className="px-6 py-4">Item Info</th>
+                      <th className="px-6 py-4">Category</th>
+                      <th className="px-6 py-4">Price</th>
+                      <th className="px-6 py-4">Current Status</th>
+                      <th className="px-6 py-4 text-center">Featured</th>
+                      <th className="px-6 py-4 text-center">
+                        Approval Actions
+                      </th>
+                      <th className="px-6 py-4 text-right">Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+                    {products.map(product => {
+                      const isBusy = actionId === product._id;
+                      return (
+                        <tr
+                          key={product._id}
+                          className="hover:bg-gray-50/50 dark:hover:bg-[#1e293b]/30 transition-colors"
+                        >
+                          <td className="px-6 py-4">
                             <Link
                               href={`/marketplace/${product._id}`}
-                              className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg transition-colors"
-                              title="View Details"
+                              className="flex items-center gap-3 group/item cursor-pointer w-fit"
+                              title="View product details"
                             >
-                              <Eye size={16} />
+                              <img
+                                src={product.mainImage}
+                                alt={product.title}
+                                className="w-12 h-12 rounded-xl object-cover border border-gray-100 dark:border-gray-800 shrink-0 group-hover/item:ring-2 group-hover/item:ring-[#16503b] transition-all"
+                              />
+                              <div>
+                                <p className="font-bold text-gray-900 dark:text-white truncate max-w-[220px] group-hover/item:text-[#16503b] dark:group-hover/item:text-green-400 group-hover/item:underline transition-colors">
+                                  {product.title}
+                                </p>
+                                <span className="text-[10px] font-semibold text-gray-400">
+                                  Seller:{' '}
+                                  {product.sellerName || 'AgroVision Member'}
+                                </span>
+                              </div>
                             </Link>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() =>
-                              handleDeleteProduct(product._id, product.title)
-                            }
-                            disabled={isBusy}
-                            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
-                            title="Delete Product & Cascading Data"
-                          >
-                            {isBusy ? (
-                              <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                              <Trash2 size={18} />
-                            )}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                          <td className="px-6 py-4 font-semibold text-gray-700 dark:text-gray-300">
+                            {product.category}
+                          </td>
+                          <td className="px-6 py-4 font-black text-[#16503b] dark:text-green-500">
+                            ${Number(product.price).toFixed(2)} / {product.unit}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center gap-1 text-[10px] font-black uppercase px-3 py-1 rounded-full ${
+                                product.status === 'active'
+                                  ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                                  : product.status === 'pending'
+                                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
+                                    : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                              }`}
+                            >
+                              {product.status === 'active' && (
+                                <CheckCircle size={12} />
+                              )}
+                              {product.status === 'pending' && (
+                                <Clock size={12} />
+                              )}
+                              {product.status === 'rejected' && (
+                                <XCircle size={12} />
+                              )}
+                              {product.status === 'active'
+                                ? 'Approved'
+                                : product.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-center">
+                              <button
+                                onClick={() =>
+                                  handleToggleFeatured(
+                                    product._id,
+                                    !!product.isFeatured,
+                                  )
+                                }
+                                disabled={
+                                  isBusy ||
+                                  (!product.isFeatured && featuredCount >= 6) ||
+                                  product.status !== 'active'
+                                }
+                                title={
+                                  product.status !== 'active'
+                                    ? 'Only approved/active products can be featured'
+                                    : product.isFeatured
+                                      ? 'Remove from Home Page Featured section'
+                                      : featuredCount >= 6
+                                        ? 'Maximum 6 featured products reached'
+                                        : 'Add to Home Page Featured section'
+                                }
+                                className={`p-2 rounded-xl transition-all disabled:opacity-30 cursor-pointer ${
+                                  product.isFeatured
+                                    ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                                    : 'text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-600'
+                                }`}
+                              >
+                                {isBusy && featureMutation.isPending ? (
+                                  <Loader2 size={18} className="animate-spin" />
+                                ) : (
+                                  <Star
+                                    size={18}
+                                    fill={
+                                      product.isFeatured
+                                        ? 'currentColor'
+                                        : 'none'
+                                    }
+                                  />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-2">
+                              {product.status !== 'active' && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusChange(product._id, 'active')
+                                  }
+                                  disabled={isBusy}
+                                  className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
+                                >
+                                  {isBusy ? (
+                                    <Loader2
+                                      size={12}
+                                      className="animate-spin"
+                                    />
+                                  ) : (
+                                    <CheckCircle size={12} />
+                                  )}
+                                  Approve
+                                </button>
+                              )}
+                              {product.status === 'active' && (
+                                <button
+                                  onClick={() =>
+                                    handleStatusChange(product._id, 'pending')
+                                  }
+                                  disabled={isBusy}
+                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all disabled:opacity-40 cursor-pointer flex items-center gap-1"
+                                >
+                                  {isBusy ? (
+                                    <Loader2
+                                      size={12}
+                                      className="animate-spin"
+                                    />
+                                  ) : (
+                                    <XCircle size={12} />
+                                  )}
+                                  Reject
+                                </button>
+                              )}
+                              <Link
+                                href={`/marketplace/${product._id}`}
+                                className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg transition-colors"
+                                title="View Details"
+                              >
+                                <Eye size={16} />
+                              </Link>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() =>
+                                handleDeleteProduct(product._id, product.title)
+                              }
+                              disabled={isBusy}
+                              className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-40 cursor-pointer"
+                              title="Delete Product & Cascading Data"
+                            >
+                              {isBusy ? (
+                                <Loader2 size={18} className="animate-spin" />
+                              ) : (
+                                <Trash2 size={18} />
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : (
             <div className="p-12 text-center text-gray-400 font-bold text-sm">
               No matching products found.

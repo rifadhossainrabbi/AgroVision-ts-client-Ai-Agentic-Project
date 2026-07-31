@@ -116,7 +116,127 @@ const MyOrdersPage = () => {
 
       {/* Table Container */}
       <div className="bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm transition-colors">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
+          {orders.length > 0 ? (
+            orders.map((item, idx) => (
+              <div
+                key={`${item.productId}-${item.userId}-${idx}`}
+                className="p-4 flex flex-col gap-3"
+              >
+                <Link
+                  href={`/marketplace/${item.productId}`}
+                  className="flex items-center gap-3"
+                >
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden border dark:border-gray-700 shadow-sm shrink-0 bg-gray-100 dark:bg-gray-800">
+                    <img
+                      src={item?.mainImage || '/placeholder.png'}
+                      alt={item?.productTitle}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
+                    {item.productTitle}
+                  </span>
+                </Link>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[#16503b] text-white flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
+                    {item.userImage ? (
+                      <img
+                        src={item?.userImage}
+                        alt={item.userName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={16} />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-gray-900 dark:text-gray-100">
+                      {item?.userName || 'Anonymous Buyer'}
+                    </p>
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      {item.userEmail || 'No email provided'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="font-black text-gray-900 dark:text-gray-100 text-sm">
+                    ${Number(item.price).toFixed(2)}
+                    <span className="text-[10px] text-gray-400 font-medium ml-1">
+                      / {item.unit || 'unit'}
+                    </span>
+                  </span>
+                  {item.status === 'accepted' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-200 dark:border-green-800">
+                      <CheckCircle2 size={14} /> Accepted
+                    </span>
+                  )}
+                  {item.status === 'rejected' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-full text-xs font-bold border border-red-200 dark:border-red-800">
+                      <XCircle size={14} /> Rejected
+                    </span>
+                  )}
+                  {item.status === 'pending' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-bold border border-amber-200 dark:border-amber-800">
+                      <Clock size={14} className="animate-spin" /> Pending
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Requested: {new Date(item.createdAt).toLocaleDateString()}
+                </p>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() =>
+                      handleStatusChange(
+                        item.productId,
+                        item.userId,
+                        'accepted',
+                      )
+                    }
+                    disabled={
+                      updateStatusMutation.isPending ||
+                      item.status === 'accepted'
+                    }
+                    className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1"
+                  >
+                    <Check size={14} /> Accept
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleStatusChange(
+                        item.productId,
+                        item.userId,
+                        'rejected',
+                      )
+                    }
+                    disabled={
+                      updateStatusMutation.isPending ||
+                      item.status === 'rejected'
+                    }
+                    className="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1"
+                  >
+                    <X size={14} /> Reject
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-6 py-12 text-center">
+              <p className="text-gray-400 font-bold text-sm">
+                No incoming buy requests for your products yet.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
               <tr>

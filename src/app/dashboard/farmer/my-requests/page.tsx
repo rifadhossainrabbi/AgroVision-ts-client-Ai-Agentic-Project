@@ -117,7 +117,93 @@ const MyRequestsPage = () => {
 
       {/* Table Container */}
       <div className="bg-white dark:bg-gray-900 rounded-[2rem] border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm transition-colors">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-gray-50 dark:divide-gray-800">
+          {requests.length > 0 ? (
+            requests.map(item => (
+              <div key={item.productId} className="p-4 flex flex-col gap-3">
+                <Link
+                  href={`/marketplace/${item.productId}`}
+                  className="flex items-center gap-3"
+                >
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden border dark:border-gray-700 shadow-sm shrink-0 bg-gray-100 dark:bg-gray-800">
+                    <img
+                      src={item.mainImage || '/placeholder.png'}
+                      alt={item.productTitle}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <div>
+                    <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 block">
+                      {item.productTitle}
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-semibold">
+                      Seller: {item.sellerName || 'AgroVision Seller'}
+                    </span>
+                  </div>
+                </Link>
+
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <span className="font-black text-gray-900 dark:text-gray-100 text-sm">
+                    ${Number(item.price).toFixed(2)}
+                    <span className="text-[10px] text-gray-400 font-medium ml-1">
+                      / {item.unit || 'unit'}
+                    </span>
+                  </span>
+                  {item.status === 'accepted' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-200 dark:border-green-800">
+                      <CheckCircle2 size={14} /> Accepted
+                    </span>
+                  )}
+                  {item.status === 'rejected' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-full text-xs font-bold border border-red-200 dark:border-red-800">
+                      <XCircle size={14} /> Rejected
+                    </span>
+                  )}
+                  {item.status === 'pending' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-bold border border-amber-200 dark:border-amber-800">
+                      <Clock size={14} className="animate-spin" /> Pending
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Requested: {new Date(item.createdAt).toLocaleDateString()}
+                </p>
+
+                <div className="flex gap-2 pt-1">
+                  <Link
+                    href={`/marketplace/${item.productId}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500 hover:text-green-600 transition-all cursor-pointer text-xs font-bold"
+                  >
+                    <ExternalLink size={16} /> View
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteClick(item.productId)}
+                    className="flex-1 flex items-center justify-center gap-1.5 p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500 hover:text-red-600 transition-all cursor-pointer text-xs font-bold"
+                  >
+                    <Trash2 size={16} /> Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-6 py-12 text-center">
+              <p className="text-gray-400 font-bold text-sm">
+                You haven't submitted any buy requests yet.
+              </p>
+              <Link
+                href="/marketplace"
+                className="mt-3 inline-block text-xs font-black text-[#16503b] hover:underline uppercase tracking-wider"
+              >
+                Browse Products
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
               <tr>
