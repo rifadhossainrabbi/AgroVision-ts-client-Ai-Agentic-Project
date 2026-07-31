@@ -61,7 +61,7 @@ const Banner = () => {
   const router = useRouter();
 
   return (
-    <section className="w-full h-[60vh] md:h-[85vh] relative overflow-hidden">
+    <section className="w-full h-[60vh] md:h-[70vh] relative overflow-hidden">
       <Swiper
         modules={[Autoplay, Navigation, Pagination, EffectFade]}
         effect="fade"
